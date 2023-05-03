@@ -27,7 +27,7 @@ async def status():
             # If its race week post the times, if not post no. weeks until next race week
             if Util.check_race_week():
                 Event = Util.get_week_event(today)
-                friday,saturday,sunday = sort_sessions_by_day(Event)
+                friday,saturday,sunday = sort_f1sessions_by_day(Event)
                 print("") ###### PRINT SESSION NAME AND DATE
                 # FRIDAY SESSIONS:
 
