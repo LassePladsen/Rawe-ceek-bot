@@ -95,8 +95,135 @@ def sort_sessions_by_day(Event):
 
     return friday,saturday,sunday
 
+def print_event(Event,discord_format="__**"):
+    """Prints name and date for given race event, must be fastf1.Event object.
+    Supports discord formatting given as optional argument."""
+    name = Event["EventName"]
+    date = str(Event["EventDate"])[:10]
+
+    # Extract month number, find the month name, and translate to Norwegian
+    month = translate_month_to_norwegian(calendar.month_name[int(date[5:7])])
+
+    end_day = str(int(date[-2:])) # gets rid of the leading zero if the day number is < 10
+    start_day = str(int(end_day)-2)
+
+    out_date = start_day + "-" + end_day + " " + month
+
+    if discord_format is not None:
+        # Print with given discord formatting
+        print(f"{discord_format}{name} {out_date}{discord_format[::-1]}")
+    else: # Print without
+        print(f"{name} {out_date}")
+
+def print_day_sessions(dayname, f2_sessions, f1_sessions):
+    """Prints category and time for all F1 and F2 sessions from given list containing all sessions for that day.
+
+    Parameters:
+        f2_sessions: list containing a dictionary with session name and time
+        f1_sessions: fastf1.Session object of the session
+    """
+    if len(f2_sessions) > 0 or len(f1_sessions)>0:
+        print(dayname)
+
+        # First print all f2 sessions
+        if len(f2_sessions)>0:
+            for f2_session in f2_sessions:
+                time = f2_session["time"]
+                print(f"F2 {f2_session} time")
+
+        # Then print the f1 sessions
+        if len(f1_sessions)>0:
+            for f1_session in f1_sessions:
+                # Extract session name
+                name = str(f1_session).split(" - ")[1]
+
+                # Extract session time and convert to norwegian time zone
+                local_time = f1_session.date
+                norwegian_time = local_time.tz_localize("Europe/Oslo")
+                out_time = str(norwegian_time).split(" ")[1]
+
+                # Add the timezone conversion to the total time (f.ex: 20:00:00+02:00 to 22:00:00)
+                hour = int(out_time[:2])
+                hour_add = int(out_time[8:11])
+                hour_corrected = hour+hour_add
+
+                out_time = str(hour_corrected) + out_time[2:5]
+                print(f"F1 {name} - {out_time}")
+
+        print("") # Final blank space to seperate the days in the output
+
+def month_index_to_name(monthindex,language="English"):
+    if language == "English":
+        months = ["January", "February", "March", "April", "May", "June", "July",
+                 "August", "September", "October", "November", "December"]
+    elif language == "Norwegian":
+        months = ["Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli",
+              "August", "September", "Oktober", "November", "Desember"]
+    else: # Fallback to English
+        months = ["January", "February", "March", "April", "May", "June", "July",
+                  "August", "September", "October", "November", "December"]
+    return months[monthindex-1]
+
+
+def translate_month_to_norwegian(month):
+    no_months = ["Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli",
+              "August", "September", "Oktober", "November", "Desember"]
+    en_months = ["January", "February", "March", "April", "May", "June", "July",
+                 "August", "September", "October", "November", "December"]
+    return no_months[en_months.index(month)]
+
+def reformat_date(date):
+    """Reformats a date given as 'year-mm-dd hh:mm:ss' to 'day month' with month names."""
+    date = date.split(" ")[0]
+    month = month_index_to_name(int(date[5:7]))
+    day = date[8:]
+    return day + " " + month
+
+def extract_f2_days(Event,dictionary):
+    """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
+    Returns a dictionary mapping session days to session names and times.
+
+    Input dictionary is formatted as such:
+    'dictionary = {'21 May': ('Round 5', 'Italy-Emilia Romagna', 'Imola', '19-21 May 2023',
+                          [['Qualifying Session', 'Friday', 'TBC'],
+                           ['Sprint Race', 'Saturday', 'TBC'],
+                           ['Feature Race', 'Sunday', 'TBC']]),  '
+    """
+    event_date = reformat_date(str(Event["EventDate"]).split(" ")[0])
+    f2_event = dictionary[event_date][4]
+
+    session_days = []
+    for day in f2_event:
+        day.pop(1)
+        session_days.append(day)
+
+    return session_days
+
+
 
 # DEBUGGING/TESTING:
 if __name__ == "__main__":
     Event = get_week_event(today)
-    Event = get_week_event(date(2023,4,25))
+    Event = get_week_event(date(2023,5,25))
+    # print(Event)
+    # print_event(Event)
+    fri,satur,sun = sort_sessions_by_day(Event)
+    f2_test = {'21 May': ('Round 5', 'Italy-Emilia Romagna', 'Imola', '19-21 May 2023',
+                          [['Qualifying Session', 'Friday', '15:55-16:25'],
+                           ['Sprint Race', 'Saturday', '10:35-11:20'],
+                           ['Feature Race', 'Sunday', 'TBC']]),
+               '28 May': ('Round 6', 'Monaco', 'Monte Carlo', '25-28 May 2023',
+                          [['Qualifying Group A', 'Thursday', 'TBC'],
+                           ['Qualifying Group B', 'Thursday', 'TBC'],
+                           ['Sprint Race', 'Friday', '10:40-10:40'],
+                           ['Feature Race', 'Sunday', 'TBC']])}
+
+    # f2_friday = f2_test[][3][0]
+    # f2_friday.pop(1)
+
+    # print(f2_friday)
+    print(extract_f2_days(Event, f2_test))
+    # print_day_sessions("Fredag",[],fri)
+    # print_day_sessions("Lørdag",[],satur)
+    # print_day_sessions("Søndag",[],sun)
+
