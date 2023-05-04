@@ -184,7 +184,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
             if len(f2_day) > 0:
                 for name, time in f2_day:
                     if name == "Race":
-                        name = "Feature Race"
+                        name = "**Feature Race**"
 
                     if time == "TBC":
                         TBC_sessions.append(f"F2 {name}: {time}")
@@ -199,7 +199,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     # Extract session name
                     name = str(f1_session).split(" - ")[1]
                     if name == "Race":
-                        name = "Feature Race"
+                        name = "**Feature Race**"
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
@@ -328,8 +328,36 @@ def get_country_code(country_name):
     else:
         return None
 
+def until_next_race_week(Date):
+    """Returns how many weeks until next race week from given date"""
+    dates = f1.get_remaining_dates(Date)
+    sunday = get_sunday_date(Date)
+    if sunday in dates:
+        return 0
 
-def print_all_week_info(Date,rawe_ceek=True):
+    counter = 0
+    while sunday not in dates:
+        # Increase week by 1 and check again
+        sunday = sunday[:-2] + str(int(sunday[-2:]) + 7)
+
+        # Roll over to next month if day number exceeds days in the given month:
+        days_in_month = calendar.monthrange(Date.year, Date.month)[1]
+        if int(sunday[-2:]) > days_in_month:
+            # Find new day number
+            days_exceeded = int(sunday[-2:]) - days_in_month
+            new_day = day_string_formatting(days_exceeded)  # format day number
+            sunday = sunday[:-2] + new_day  # roll to new day number
+
+            sunday = sunday.replace(str(Date.month), str(Date.month + 1))
+        counter += 1
+    return counter
+
+def get_remaining_events(Date):
+    dt = datetime.combine(Date, datetime.min.time())
+    Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
+    return len(Remaining_schedule)
+
+def print_all_week_info(Date,weeks_left=True,norwegian=True):
     Event = f1.get_week_event(Date)
 
     f1_days = f1.sort_sessions_by_day(Event)
@@ -339,20 +367,11 @@ def print_all_week_info(Date,rawe_ceek=True):
     eventtitle = f1.print_event_info(Event)
     eventinfo = print_all_days(Event, f2_calendar, f2_days, f1_days)
 
-    output = ""
-    if rawe_ceek:
-        output += "RAWE_CEEK! :"
-    output += eventtitle + eventinfo + "\n"
-    return output
+    if weeks_left: # Print remaining race weeks in the season
+        if norwegian:
+            eventinfo += "-Races igjen: " + str(get_remaining_events(Date))
+        else:
+            pass    # add other language(s) for 'remaining eventts' here
 
-def until_next_race_week(Date,max_weeks=30):
-    """Returns how many weeks until next race week from given date"""
-    dt = datetime.combine(Date, datetime.min.time())
-    Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
-    return Remaining_schedule["EventDate"]
-
-def get_remaining_events(Date):
-    dt = datetime.combine(Date, datetime.min.time())
-    Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
-    return len(Remaining_schedule) - 1     # -1 to remove the column title
+    return eventtitle,eventinfo
 

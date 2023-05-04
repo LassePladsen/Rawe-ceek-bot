@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 
 import util
-import formula1 as f1
 
 def get_calendar():
     """

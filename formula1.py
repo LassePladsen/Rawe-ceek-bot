@@ -22,6 +22,30 @@ def get_week_event(Date):
     else:# If the given date is not a race week
         return None
 
+def get_next_week_event(Date):
+    """Returns the next race week event from a given date"""
+    dates = get_remaining_dates(Date)
+    sunday = util.get_sunday_date(Date)
+
+    if check_race_week(Date):
+        return get_week_event(Date)
+
+    while sunday not in dates:
+        # Increase week by 1 and check again
+        sunday = sunday[:-2] + str(int(sunday[-2:]) + 7)
+
+        # Roll over to next month if day number exceeds days in the given month:
+        days_in_month = calendar.monthrange(Date.year, Date.month)[1]
+        if int(sunday[-2:]) > days_in_month:
+            # Find new day number
+            days_exceeded = int(sunday[-2:]) - days_in_month
+            new_day = util.day_string_formatting(days_exceeded)  # format day number
+            sunday = sunday[:-2] + new_day  # roll to new day number
+
+            sunday = sunday.replace(str(Date.month), str(Date.month + 1))
+    return get_week_event(util.make_Date(sunday))
+
+
 def get_remaining_dates(Date):
     dt = datetime.combine(Date, datetime.min.time())
     Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
