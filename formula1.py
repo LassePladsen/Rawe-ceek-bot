@@ -1,6 +1,6 @@
 import numpy as np
 import fastf1       # f1 api
-from datetime import date
+from datetime import date,datetime
 import calendar
 
 import util
@@ -22,12 +22,24 @@ def get_week_event(Date):
     else:# If the given date is not a race week
         return None
 
-def check_race_week(Date):
+def get_remaining_dates(Date):
+    dt = datetime.combine(Date, datetime.min.time())
+    Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
+    dates = str(Remaining_schedule["EventDate"]).split("\n")    # get list of column strings
+    dates = [i.split(" ")[-1] for i in dates]   # seperate the dates in the string with column numbers
+    return dates
+
+def check_race_week(Date,old_implementation=False):
     """Boolean return for if the given date is a f1 race week."""
-    if get_week_event(Date) is not None:
-        return True
+    if old_implementation:
+        if get_week_event(Date) is not None:
+            return True
+        else:
+            return False
     else:
-        return False
+        Sunday = util.get_sunday_Date(Date)
+        dates = get_remaining_dates(Date)
+        return str(Sunday) in dates
 
 def check_sprint_session(Event):
     """Boolean check if a race event has a f1 sprint session.

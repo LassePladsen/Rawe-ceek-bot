@@ -1,5 +1,7 @@
 from datetime import date,datetime
 import calendar
+
+import fastf1
 import pytz
 
 import formula2 as f2
@@ -19,7 +21,7 @@ def day_string_formatting(day):
         return str(day)
 
 def get_sunday_date(Date):
-    """Returns a string with sundays date of the same week as the given date.
+    """Returns a string with sundays date of the same week as the given date formatted '2023-05-07'.
     Input date must be a datetime.date object."""
 
     weekday = date.weekday(Date)  # the weekday number of the week beginning at 0 (monday)
@@ -42,6 +44,9 @@ def get_sunday_date(Date):
 
         date_sunday = date_sunday.replace(str(Date.month), str(Date.month + 1))  # roll to next month
     return date_sunday
+
+def get_sunday_Date(Date):
+    return make_Date(get_sunday_date(Date))
 
 def month_index_to_name(monthindex,language="English"):
     """Converts a index to the corresponding month name. Defaults to English,
@@ -324,7 +329,7 @@ def get_country_code(country_name):
         return None
 
 
-def print_all_week_info(Date):
+def print_all_week_info(Date,rawe_ceek=True):
     Event = f1.get_week_event(Date)
 
     f1_days = f1.sort_sessions_by_day(Event)
@@ -333,4 +338,21 @@ def print_all_week_info(Date):
 
     eventtitle = f1.print_event_info(Event)
     eventinfo = print_all_days(Event, f2_calendar, f2_days, f1_days)
-    return eventtitle + eventinfo + "\n"
+
+    output = ""
+    if rawe_ceek:
+        output += "RAWE_CEEK! :"
+    output += eventtitle + eventinfo + "\n"
+    return output
+
+def until_next_race_week(Date,max_weeks=30):
+    """Returns how many weeks until next race week from given date"""
+    dt = datetime.combine(Date, datetime.min.time())
+    Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
+    return Remaining_schedule["EventDate"]
+
+def get_remaining_events(Date):
+    dt = datetime.combine(Date, datetime.min.time())
+    Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
+    return len(Remaining_schedule) - 1     # -1 to remove the column title
+
