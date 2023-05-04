@@ -3,6 +3,7 @@ from discord.ext import commands
 from datetime import date
 
 import Util
+import formula2 as f2
 
 client = commands.Bot(command_prefix="&")
 
@@ -25,9 +26,9 @@ async def status():
             prev_day = today
 
             # If its race week post the times, if not post no. weeks until next race week
-            if Util.check_race_week():
+            if Util.check_f1_race_week():
                 Event = Util.get_week_event(today)
-                friday,saturday,sunday = sort_f1sessions_by_day(Event)
+                friday,saturday,sunday = sort_f1_sessions_by_day(Event)
                 print("") ###### PRINT SESSION NAME AND DATE
                 # FRIDAY SESSIONS:
 
