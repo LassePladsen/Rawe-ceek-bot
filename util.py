@@ -1,15 +1,17 @@
 from datetime import date,datetime
 import calendar
-
 import fastf1
 import pytz
+import json
 
 import formula2 as f2
 import formula1 as f1
 
-def get_discord_bot_token(filename):
-    with open(filename,"r") as file:
-        return file.read()
+def get_discord_data(datakey,file="discord_data.json"):
+    """Extracts value from given datakey from a given .json filename """
+    with open(file, "r") as infile:
+        data = json.load(infile)
+    return data[datakey]
 
 def day_string_formatting(day):
     """Gives a string containing a day number formatted like '05' instead of '5' (example).
@@ -113,7 +115,7 @@ def make_Date(date_str):
         monthi = month_name_to_index(month)
     return date(int(year),int(monthi),int(day))
 
-def convert_timezone_norwegian(time):
+def convert_timezone_oslo(time):
     """Converts a time of panda.Timestamp object to norwegian timezone."""
     no_time = time.tz_localize("Europe/Oslo")
     out_time = str(no_time).split(" ")[1]
@@ -203,7 +205,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
-                    out_time = convert_timezone_norwegian(local_time)
+                    out_time = convert_timezone_oslo(local_time)
                     hour = int(out_time.split(":")[0])
                     timing_dict[hour] = f"F1 {name}: {out_time}"
 
@@ -238,7 +240,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
-                    out_time = convert_timezone_norwegian(local_time)
+                    out_time = convert_timezone_oslo(local_time)
                     output += f"F1 {name}: {out_time}" + "\n"
 
         output += "\n"  # Final blank space to seperate the days in the output
@@ -246,10 +248,16 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
 
 def print_all_days(Event,f2_calendar,f2_days,f1_days):
     output = ""
-    thursday = print_day_sessions(Event, "Torsdag", f2_calendar, f2_days, f1_days)
-    friday = print_day_sessions(Event, "Fredag", f2_calendar, f2_days, f1_days)
-    saturday = print_day_sessions(Event, "Lørdag", f2_calendar, f2_days, f1_days)
-    sunday = print_day_sessions(Event, "Søndag", f2_calendar, f2_days, f1_days)
+
+    thursday_title = "Torsdag"
+    friday_title = "Fredag"
+    saturday_title = "Lørdag"
+    sunday_title = "Søndag"
+
+    thursday = print_day_sessions(Event, thursday_title, f2_calendar, f2_days, f1_days)
+    friday = print_day_sessions(Event, friday_title, f2_calendar, f2_days, f1_days)
+    saturday = print_day_sessions(Event, saturday_title, f2_calendar, f2_days, f1_days)
+    sunday = print_day_sessions(Event, sunday_title, f2_calendar, f2_days, f1_days)
 
     for day in [thursday,friday,saturday,sunday]:
         if day is not None:
@@ -357,7 +365,9 @@ def get_remaining_events(Date):
     Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
     return len(Remaining_schedule)
 
-def print_all_week_info(Date,weeks_left=True,norwegian=True):
+def get_all_week_info(Date, weeks_left=True, language="norwegian"):
+    """Returns two strings containing print title and print text
+    for sending in discord."""
     Event = f1.get_week_event(Date)
 
     f1_days = f1.sort_sessions_by_day(Event)
@@ -368,7 +378,7 @@ def print_all_week_info(Date,weeks_left=True,norwegian=True):
     eventinfo = print_all_days(Event, f2_calendar, f2_days, f1_days)
 
     if weeks_left: # Print remaining race weeks in the season
-        if norwegian:
+        if language.lower() == "norwegian":
             eventinfo += "-Races igjen: " + str(get_remaining_events(Date))
         else:
             pass    # add other language(s) for 'remaining eventts' here

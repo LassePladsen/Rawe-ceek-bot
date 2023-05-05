@@ -18,6 +18,9 @@ def get_calendar():
         soup = BeautifulSoup(response.content, 'html.parser')
 
         country = soup.find("div", {"class": "country-circuit-name"}).text
+        if "-" in country: # If circuit name is more than the country like 'Italy-Emilia Romagna'
+            country = country.split("-")[0]
+
         circuit = soup.find("div", {"class": "country-circuit"}).text
         round_number, date = soup.find("div", {"class": "schedule"}).text.split("|")
         raceday = date.split("-")[1][:-5]

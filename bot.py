@@ -1,72 +1,99 @@
 from asyncio import sleep
 from discord.ext import commands
-from discord import File,Embed,Emoji
+from discord import File,Embed,Intents
 from datetime import date
 
 import util
-import formula2 as f2
 import formula1 as f1
 
+# Intent = Intents.default()
+# Intent.message_content = True
 client = commands.Bot(command_prefix="&")
 
 # Discord Channel ID
-# channel_id = 886642751737827328         # "#test"-channel
-channel_id = 1101176067290570802      # "#f1"-channel
+channel_id = int(util.get_discord_data("test_channel_id"))
 
-async def send_rawe_ceek_embed():
-    Today = date.today()
-    # If its race week post the times, if not post no. weeks until next race week
-    if f1.check_race_week(Today):
-        title, des = util.print_all_week_info(Today)
+async def get_rawe_ceek_embed(Date):
+    title, des = util.get_all_week_info(Date)  # title and description for the embed message
+    embed = Embed(title=title, description=des)
+    embed.set_image(url="attachment://race.png")
+    return embed
 
+async def get_no_rawe_ceek_embed(Date):
+    title = str(util.until_next_race_week(Date)) + " uke(r) til neste rawe ceek..."  # title for embed message
+
+    en_date = util.get_event_date_str(f1.get_next_week_event(Date))
+    no_date = str(int(en_date.split(" ")[0])) + " " + util.month_to_norwegian(en_date.split(" ")[1],
+                                                                              caps=False)
+    des = "Neste dato er " + no_date  # description for embed message
+    embed = Embed(title=title, description=des)
+    embed.set_image(url="attachment://sad.png")
+
+async def send_week_embed(Date):
+    """Sends timing embed and returns message object for later deletion"""
+    # If its race week post the times, if not then post no. of weeks until next race week
+    if f1.check_race_week(Date):
         file = File("rawe_ceek_frog.png", filename="race.png")
-        embed = Embed(title=title, description=des)
-        embed.set_image(url="attachment://race.png")
-
+        embed = await get_rawe_ceek_embed(Date)
         emoji = "<:gorilla:984044880575750174>"
 
+        Message = await client.get_channel(channel_id).send(file=file, embed=embed)
+        await Message.add_reaction(emoji)
 
-        message = await client.get_channel(channel_id).send(file=file, embed=embed)
-        await message.add_reaction(emoji)
 
     else:  # if not race week then post no. weeks until n# ext race week
         # Count how many weeks until next race week
-        title = str(util.until_next_race_week(Today)) + " uker til neste rawe ceek..."
-
-        en_date = util.get_event_date_str(f1.get_next_week_event(Today))
-        no_date = str(int(en_date.split(" ")[0])) + " " + util.month_to_norwegian(en_date.split(" ")[1],
-                                                                                  caps=False)
-        des = "Neste dato er " + no_date
-        emoji = "<:sadge:920711330955132929>"
-
+        emoji = "<:sadge:920711330955132929>"  # emoji for adding reaction
+        embed = await get_no_rawe_ceek_embed(Date)
         file = File("no_rawe_ceek.png", filename="sad.png")
-        embed = Embed(title=title, description=des)
-        embed.set_image(url="attachment://sad.png")
-        message = await client.get_channel(channel_id).send(file=file, embed=embed)
-        await message.add_reaction(emoji)
+
+        Message = await client.get_channel(channel_id).send(file=file, embed=embed)
+        await Message.add_reaction(emoji)
+    return Message
+
+async def get_last_bot_message(max_messages=15):
+    """Returns the Message for the last message the bot sent, checks up to given
+    number of previous messages."""
+    bot_id = util.get_discord_data("bot_id")  # the bots user id to check the previous messages
+    prev_msgs = await client.get_channel(channel_id).history(limit=max_messages).flatten() # list of prev messages
+    prev_ids = [str(msg.author.id) for msg in prev_msgs]    # list of the user ids for all prev messages
+
+    if bot_id in prev_ids:
+        index = prev_ids.index(bot_id)  # first index of last bot msg
+        return prev_msgs[index]
 
 async def status():
-    # Initialize, save todays date so it doesnt send again
-    Prev_day = date.today()
+    # Initialize todays date
+    prev_Date = date.today()
 
     # Loops after 24 hours
     while True:
-        Today = date.today()
-        # Run if its monday (weekday=0) AND it hasnt already ran today
-        if Today.weekday() == 0 and Today != Prev_day:
-            # saves date so it doesnt execute twice in a day (bot can manually update via discord command):
-            await send_rawe_ceek_embed()
-            Prev_day = Today
+        Today = date.today() # saves date to check if it has ran this week
 
-        await sleep(24*3600)  # loops again after 24 hours (in seconds)
+        cond1 = util.get_sunday_date(Today) == util.get_sunday_date(prev_Date) # is same week as prev post?
+        cond2 = f1.check_race_week(Today)  # is race week?
 
+        # If it has posted this week and its a race week: only edit the embed to update f2 times
+        if cond1 and cond2:
+            Message = await get_last_bot_message()
+            new_Embed = await get_rawe_ceek_embed(Today)
+            await Message.edit(embed=new_Embed)
+
+        # if hasnt posted this week, but still race week: post embed and save date
+        elif not cond1 and cond2:
+            await send_week_embed(Today)
+            prev_Date = Today
+
+
+        # await sleep(24*3600)  # loops again after 24 hours (in seconds)
+        await sleep(3)
 
 
 @client.event
 async def on_ready():
-    await send_rawe_ceek_embed()
+    # await send_rawe_ceek_embed()  # send message on startup
+    client.loop.create_task(status())   # then start the loop
     print("PIERRRE GASLYYYY!")
 
 
-client.loop.create_task(status())
-client.run(util.get_discord_bot_token("token.txt"))
+client.run(util.get_discord_data("token"))
