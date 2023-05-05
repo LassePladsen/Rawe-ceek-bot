@@ -87,7 +87,7 @@ async def status():
             await send_week_embed(Today,rawe_ceek_emoji,no_rawe_ceek_emoji)
             prev_Date = Today
 
-
+        print("Loop complete")
         await sleep(24*3600)  # loops again after 24 hours (in seconds)
 
 @client.event
