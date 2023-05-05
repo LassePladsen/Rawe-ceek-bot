@@ -6,8 +6,6 @@ from datetime import date
 import util
 import formula1 as f1
 
-# Intent = Intents.default()
-# Intent.message_content = True
 client = commands.Bot(command_prefix="&")
 
 # Discord Channel ID
@@ -85,8 +83,7 @@ async def status():
             prev_Date = Today
 
 
-        # await sleep(24*3600)  # loops again after 24 hours (in seconds)
-        await sleep(3)
+        await sleep(24*3600)  # loops again after 24 hours (in seconds)
 
 
 @client.event
