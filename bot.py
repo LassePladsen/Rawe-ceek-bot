@@ -27,12 +27,13 @@ async def get_no_rawe_ceek_embed(Date):
     embed = Embed(title=title, description=des)
     embed.set_image(url="attachment://sad.png")
 
-async def send_week_embed(Date,emoji_rawe_ceek="<:gorilla:984044880575750174>"
-                          ,emoji_no_rawe_ceek="<:sadge:920711330955132929>"):
+async def send_week_embed(Date,emoji_rawe_ceek=None
+                          ,emoji_no_rawe_ceek=None):
     """Sends timing embed and returns message object for later deletion"""
     # If its race week post the times, if not then post no. of weeks until next race week
     if f1.check_race_week(Date):
-        file = File("rawe_ceek_frog.png", filename="race.png")
+        rawe_ceek_image = util.get_discord_data("rawe_ceek_image")
+        file = File(rawe_ceek_image, filename="race.png")
         embed = await get_rawe_ceek_embed(Date)
 
         Message = await client.get_channel(channel_id).send(file=file, embed=embed)
@@ -43,7 +44,8 @@ async def send_week_embed(Date,emoji_rawe_ceek="<:gorilla:984044880575750174>"
     else:  # if not race week then post no. weeks until n# ext race week
         # Count how many weeks until next race week
         embed = await get_no_rawe_ceek_embed(Date)
-        file = File("no_rawe_ceek.png", filename="sad.png")
+        no_rawe_ceek_image = util.get_discord_data("no_rawe_ceek_image")
+        file = File(no_rawe_ceek_image, filename="sad.png")
 
         Message = await client.get_channel(channel_id).send(file=file, embed=embed)
         if emoji_no_rawe_ceek:
@@ -78,9 +80,11 @@ async def status():
             new_Embed = await get_rawe_ceek_embed(Today)
             await Message.edit(embed=new_Embed)
 
-        # if hasnt posted this week, but still race week: post embed and save date
-        elif not cond1 and cond2:
-            await send_week_embed(Today)
+        # if hasnt posted this week: post embed and save date
+        elif not cond1:
+            rawe_ceek_emoji = util.get_discord_data("rawe_ceek_emoji")
+            no_rawe_ceek_emoji = util.get_discord_data("no_rawe_ceek_emoji")
+            await send_week_embed(Today,rawe_ceek_emoji,no_rawe_ceek_emoji)
             prev_Date = Today
 
 
@@ -94,4 +98,4 @@ async def on_ready():
     print("PIERRRE GASLYYYY!")
 
 
-client.run(util.get_discord_data("token"))
+client.run(util.get_discord_data("bot_token"))
