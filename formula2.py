@@ -7,7 +7,7 @@ def get_calendar():
     """
     Scrapes the F2 schedule from the F2 ebsite. Returns a dictionary mapping
     the sunday dates to the event infos.
-    All credit goesa to ENils1: https://github.com/ENils1
+    All credit goes to ENils1: https://github.com/ENils1
     """
     formula_2 = {}
 
