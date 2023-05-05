@@ -9,7 +9,7 @@ import formula1 as f1
 client = commands.Bot(command_prefix="&")
 
 # Discord Channel ID
-channel_id = int(util.get_discord_data("test_channel_id"))
+channel_id = int(util.get_discord_data("channel_id"))
 
 async def get_rawe_ceek_embed(Date):
     title, des = util.get_all_week_info(Date)  # title and description for the embed message
@@ -89,7 +89,6 @@ async def status():
 
 
         await sleep(24*3600)  # loops again after 24 hours (in seconds)
-
 
 @client.event
 async def on_ready():
