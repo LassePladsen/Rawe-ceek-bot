@@ -1,6 +1,8 @@
 from asyncio import sleep
+
+import discord
 from discord.ext import commands
-from discord import File,Embed,Intents
+from discord import File,Embed,Activity
 from datetime import date
 
 import util
@@ -27,6 +29,19 @@ async def get_no_rawe_ceek_embed(Date):
     embed = Embed(title=title, description=des)
     embed.set_image(url="attachment://sad.png")
 
+async def update_status_message():
+    Today = date.today()
+    if f1.check_race_week(Today):
+        # Set bot satus message to rawe ceek
+        activity = Activity(type=discord.ActivityType.watching, name="RAWE CEEK!")
+        await client.change_presence(status=discord.Status.idle, activity=activity)
+
+    else:
+        # Set bot satus message to no rawe ceek
+        activity = Activity(type=discord.ActivityType.watching, name="no rawe ceek :(")
+        await client.change_presence(status=discord.Status.idle, activity=activity)
+
+
 async def send_week_embed(Date,emoji_rawe_ceek=None
                           ,emoji_no_rawe_ceek=None):
     """Sends timing embed and returns message object for later deletion"""
@@ -40,7 +55,6 @@ async def send_week_embed(Date,emoji_rawe_ceek=None
         if emoji_rawe_ceek:
             await Message.add_reaction(emoji_rawe_ceek)
 
-
     else:  # if not race week then post no. weeks until n# ext race week
         # Count how many weeks until next race week
         embed = await get_no_rawe_ceek_embed(Date)
@@ -50,6 +64,7 @@ async def send_week_embed(Date,emoji_rawe_ceek=None
         Message = await client.get_channel(channel_id).send(file=file, embed=embed)
         if emoji_no_rawe_ceek:
             await Message.add_reaction(emoji_no_rawe_ceek)
+
     return Message
 
 async def get_last_bot_message(max_messages=15):
@@ -86,6 +101,9 @@ async def status():
             no_rawe_ceek_emoji = util.get_discord_data("no_rawe_ceek_emoji")
             await send_week_embed(Today,rawe_ceek_emoji,no_rawe_ceek_emoji)
             prev_Date = Today
+
+        # Lastly update the status message
+        await update_status_message()
 
         print("Loop complete")
         await sleep(24*3600)  # loops again after 24 hours (in seconds)
