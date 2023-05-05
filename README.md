@@ -6,8 +6,14 @@
  To implement a new language (default messages are sent in norwegian) edit titles and descriptions in the two create embed functions in bot.py, also edit the weekday titles in util.print_all_days(), and then also edit the language argument implementation in util.get_all_week_info() 
  It also sends norwegian timezone, which can be changed by changing the conversion in util.print_day_sessions() (remember to do it seperately for the f1 and f2 sessions).
  
- Needs the discord bot token, the bots discord user id, and the discord channel id given in a json file, default using "discord_data.json" with keys "token", "bot_id", and "channel_id".
-The bot defaults to adding reaction emojis to each embed, but different if its a race week embed or no race week embed. The emoji defaults are custom emojis so they wont work for your discord. Change the emojis in the emoji argument for bot.send_week_embed().
+The bot needs multiple string values given in a json default 'discord_data.json'. Below are the values needed with default key used.
+-Discord bot token: "bot_token"
+-Discord bot user id: "bot_id"
+-Discord channel id: "channel_id"
+-Image to post during race week: "rawe_ceek_image"
+-Image to post during non-race week: "no_rawe_ceek_image"
+-(Optional) reaction emoji id during race week: "rawe_ceek_emoji"
+-(Optional) reaction emoji id during non-race week: "no_rawe_ceek_emoji"
  
  Run bot.py to start the bot loop.
  
