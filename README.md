@@ -6,7 +6,7 @@
  To implement a new language (default messages are sent in norwegian) edit titles and descriptions in bot.send_rawe_ceek_embed(), and edit the weekday titles in util.print_all_days().
  It also sends norwegian timezone, which can be changed by changing the conversion in util.print_day_sessions() (seperately for the f1 and f2 sessions).
  
- Needs a discord bot token given in a file named "token.txt" by default.
+ Needs a discord bot token given in a file named "token.txt" by default, filename can be changed in the final line in bot.py that executes client.run().
  Run bot.py for the bot to be active.
  
 
