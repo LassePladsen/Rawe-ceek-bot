@@ -36,7 +36,8 @@ async def send_week_embed(Date,emoji_rawe_ceek="<:gorilla:984044880575750174>"
         embed = await get_rawe_ceek_embed(Date)
 
         Message = await client.get_channel(channel_id).send(file=file, embed=embed)
-        await Message.add_reaction(emoji_rawe_ceek)
+        if emoji_rawe_ceek:
+            await Message.add_reaction(emoji_rawe_ceek)
 
 
     else:  # if not race week then post no. weeks until n# ext race week
@@ -45,7 +46,8 @@ async def send_week_embed(Date,emoji_rawe_ceek="<:gorilla:984044880575750174>"
         file = File("no_rawe_ceek.png", filename="sad.png")
 
         Message = await client.get_channel(channel_id).send(file=file, embed=embed)
-        await Message.add_reaction(emoji_no_rawe_ceek)
+        if emoji_no_rawe_ceek:
+            await Message.add_reaction(emoji_no_rawe_ceek)
     return Message
 
 async def get_last_bot_message(max_messages=15):

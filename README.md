@@ -7,6 +7,7 @@
  It also sends norwegian timezone, which can be changed by changing the conversion in util.print_day_sessions() (remember to do it seperately for the f1 and f2 sessions).
  
  Needs the discord bot token, the bots discord user id, and the discord channel id given in a json file, default using "discord_data.json" with keys "token", "bot_id", and "channel_id".
+The bot defaults to adding reaction emojis to each embed, but different if its a race week embed or no race week embed. The emoji defaults are custom emojis so they wont work for your discord. Change the emojis in the emoji argument for bot.send_week_embed().
  
  Run bot.py to start the bot loop.
  
