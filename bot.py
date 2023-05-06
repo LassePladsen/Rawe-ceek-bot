@@ -129,7 +129,7 @@ async def update(ctx):
     msg_channel_id = ctx.message.channel.id
     reply = await bot.get_channel(msg_channel_id).send("Update done.")
 
-    # if its not in the #bot channel, then delete both the user and bots messages after 3 seconds
+    # if its not in the #bot channel, then delete both the user and bots messages after 2 seconds
     bot_channel_id = int(util.get_discord_data("bot_channel_id"))
     if msg_channel_id != bot_channel_id:
         await sleep(2)
