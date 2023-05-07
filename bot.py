@@ -7,9 +7,8 @@ from datetime import date,datetime
 import util
 import formula1 as f1
 
-# intents = discord.Intents.default()
-# client = commands.Bot(command_prefix="&",intents=intents)
-bot = commands.Bot(command_prefix="&",case_insensitive=True)
+intents = discord.Intents.default()
+bot = commands.Bot(command_prefix="&",intents=intents,case_insensitive=True)
 
 # Discord Channel ID
 channel_id = int(util.get_discord_data("channel_id"))
@@ -144,5 +143,5 @@ async def on_ready():
     bot.loop.create_task(status())   # then start the loop
     print("PIERRRE GASLYYYY!")
 
-
+# run the bot
 bot.run(util.get_discord_data("bot_token"))
