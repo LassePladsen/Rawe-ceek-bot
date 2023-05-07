@@ -33,14 +33,13 @@ async def update_status_message():
     today = date.today()
     if f1.check_race_week(today):
         # Set bot satus message to rawe ceek
-        activity = discord.Activity(type=discord.ActivityType.watching, name="RAWE CEEK!")
-        await bot.change_presence(status=discord.Status.idle, activity=activity)
+        activity = discord.Activity(type=discord.ActivityType.watching, name="the RAWE CEEK!")
+        await bot.change_presence(status=discord.Status.online, activity=activity)
 
     else:
         # Set bot satus message to no rawe ceek
-        activity = discord.Activity(type=discord.ActivityType.watching, name="no rawe ceek :(")
-        await bot.change_presence(status=discord.Status.idle, activity=activity)
-
+        activity = discord.Activity(type=discord.ActivityType.watching, name="nothing... :(")
+        await bot.change_presence(status=discord.Status.online, activity=activity)
 
 async def send_week_embed(Date,emoji_rawe_ceek=None
                           ,emoji_no_rawe_ceek=None):
