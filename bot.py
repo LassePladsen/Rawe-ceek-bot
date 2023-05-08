@@ -79,7 +79,7 @@ async def get_last_bot_message(max_messages=15):
 
 async def execute_week_embed():
     """Checks if the bot has sent an embed the week of the given date.
-    If so then update and edit the embed, if not then send a new embed and return todays date."""
+    If so then update and edit the embed, if not then send a new embed."""
     today = date.today()
 
     message = await get_last_bot_message()
@@ -88,31 +88,31 @@ async def execute_week_embed():
     # If it has posted this week and its a race week: only edit the embed to update f2 times
     posted_cond = util.get_sunday_date(today) == util.get_sunday_date(prev_date)  # is same week as prev post?
     if f1.check_race_week(today):
-        if posted_cond:  # same week then edit the embed and return same previous date as before
+        if posted_cond:  # same week then edit the embed
             new_embed = await get_rawe_ceek_embed(today)
             await message.edit(embed=new_embed)
-            return prev_date
+            return
 
         # if not same week: post new embed and save date
         elif not posted_cond:
             rawe_ceek_emoji = util.get_discord_data("rawe_ceek_emoji")
             no_rawe_ceek_emoji = util.get_discord_data("no_rawe_ceek_emoji")
             await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
-            return today
+            return
 
     else: # not race week, only needs to update next week, so post new embed if there is none this week
         if not posted_cond: # post new embed and save date
             rawe_ceek_emoji = util.get_discord_data("rawe_ceek_emoji")
             no_rawe_ceek_emoji = util.get_discord_data("no_rawe_ceek_emoji")
             await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
-            return today
+            return
 
 
 async def status():
     # Loops after 24 hours
     while True:
         # Check if it has sent this week: edits the weeks embed, or if not sends a new embed.
-        prev_Date = await execute_week_embed()  # also updates the previous date if it sent a new one
+        await execute_week_embed()  # also updates the previous date if it sent a new one
 
         # Lastly update the status message
         await update_status_message()
