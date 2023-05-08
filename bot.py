@@ -77,19 +77,21 @@ async def get_last_bot_message(max_messages=15):
         index = prev_ids.index(bot_id)  # first index of last bot msg
         return prev_msgs[index]
 
-async def execute_week_embed(prev_Date):
+async def execute_week_embed(prev_date):
     """Checks if the bot has sent an embed the week of the given date.
     If so then update and edit the embed, if not then send a new embed and return todays date."""
     today = date.today()
 
+    message = await get_last_bot_message()
+    prev_date = message.created_at.date
+
     # If it has posted this week and its a race week: only edit the embed to update f2 times
-    posted_cond = util.get_sunday_date(today) == util.get_sunday_date(prev_Date)  # is same week as prev post?
+    posted_cond = util.get_sunday_date(today) == util.get_sunday_date(prev_date)  # is same week as prev post?
     if f1.check_race_week(today):
         if posted_cond:  # same week then edit the embed and return same previous date as before
-            message = await get_last_bot_message()
             new_embed = await get_rawe_ceek_embed(today)
             await message.edit(embed=new_embed)
-            return prev_Date
+            return prev_date
 
         # if not same week: post new embed and save date
         elif not posted_cond:
@@ -107,13 +109,10 @@ async def execute_week_embed(prev_Date):
 
 
 async def status():
-    # Initialize date of loop start
-    prev_Date = date.today()
-
     # Loops after 24 hours
     while True:
         # Check if it has sent this week: edits the weeks embed, or if not sends a new embed.
-        prev_Date = await execute_week_embed(prev_Date)  # also updates the previous date if it sent a new one
+        prev_Date = await execute_week_embed()  # also updates the previous date if it sent a new one
 
         # Lastly update the status message
         await update_status_message()
