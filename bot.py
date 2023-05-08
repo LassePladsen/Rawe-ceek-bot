@@ -77,7 +77,7 @@ async def get_last_bot_message(max_messages=15):
         index = prev_ids.index(bot_id)  # first index of last bot msg
         return prev_msgs[index]
 
-async def execute_week_embed(prev_date):
+async def execute_week_embed():
     """Checks if the bot has sent an embed the week of the given date.
     If so then update and edit the embed, if not then send a new embed and return todays date."""
     today = date.today()
