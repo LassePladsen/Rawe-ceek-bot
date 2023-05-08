@@ -83,7 +83,7 @@ async def execute_week_embed():
     today = date.today()
 
     message = await get_last_bot_message()
-    prev_date = message.created_at.date
+    prev_date = message.created_at.date()
 
     # If it has posted this week and its a race week: only edit the embed to update f2 times
     posted_cond = util.get_sunday_date(today) == util.get_sunday_date(prev_date)  # is same week as prev post?
