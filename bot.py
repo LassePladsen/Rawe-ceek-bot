@@ -108,7 +108,6 @@ async def execute_week_embed():
             await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
             return
 
-
 async def status():
     # Loops after 24 hours
     while True:

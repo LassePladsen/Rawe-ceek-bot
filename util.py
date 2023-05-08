@@ -337,13 +337,13 @@ def get_country_code(country_name):
         return None
 
 def until_next_race_week(Date):
-    """Returns how many weeks until next race week from given date"""
+    """Returns how many weeks until next race week from given date."""
     dates = f1.get_remaining_dates(Date)
     sunday = get_sunday_date(Date)
     if sunday in dates:
         return 0
 
-    counter = 0
+    counter = 1
     while sunday not in dates:
         # Increase week by 1 and check again
         sunday = sunday[:-2] + str(int(sunday[-2:]) + 7)
