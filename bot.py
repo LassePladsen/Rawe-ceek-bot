@@ -20,7 +20,12 @@ async def get_rawe_ceek_embed(Date):
     return embed
 
 async def get_no_rawe_ceek_embed(Date):
-    title = str(util.until_next_race_week(Date)) + " uke(r) til neste rawe ceek..."  # title for embed message
+    week_count = util.until_next_race_week(Date)
+    if week_count == 1:
+        title = str(week_count) + " uke til neste rawe ceek..."  # title for embed message
+
+    else:
+        title = str(week_count) + " uker til neste rawe ceek..."  # title for embed message
 
     en_date = util.get_event_date_str(f1.get_next_week_event(Date))
     no_date = str(int(en_date.split(" ")[0])) + " " + util.month_to_norwegian(en_date.split(" ")[1],

@@ -337,7 +337,7 @@ def get_country_code(country_name):
         return None
 
 def until_next_race_week(Date):
-    """Returns how many weeks until next race week from given date."""
+    """Returns integer of how many weeks until next race week from given date."""
     dates = f1.get_remaining_dates(Date)
     sunday = get_sunday_date(Date)
     if sunday in dates:
@@ -361,6 +361,7 @@ def until_next_race_week(Date):
     return counter
 
 def get_remaining_events(Date):
+    """Returns int of how many remaining f1 events there are from a given date."""
     dt = datetime.combine(Date, datetime.min.time())
     Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
     return len(Remaining_schedule)
