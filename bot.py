@@ -81,22 +81,29 @@ async def execute_week_embed(prev_Date):
     """Checks if the bot has sent an embed the week of the given date.
     If so then update and edit the embed, if not then send a new embed and return todays date."""
     today = date.today()
-    cond1 = util.get_sunday_date(today) == util.get_sunday_date(prev_Date)  # is same week as prev post?
-    cond2 = f1.check_race_week(today)  # is race week?
 
     # If it has posted this week and its a race week: only edit the embed to update f2 times
-    if cond1 and cond2:
-        message = await get_last_bot_message()
-        new_embed = await get_rawe_ceek_embed(today)
-        await message.edit(embed=new_embed)
-        return prev_Date
+    posted_cond = util.get_sunday_date(today) == util.get_sunday_date(prev_Date)  # is same week as prev post?
+    if f1.check_race_week(today):
+        if posted_cond:  # same week then edit the embed and return same previous date as before
+            message = await get_last_bot_message()
+            new_embed = await get_rawe_ceek_embed(today)
+            await message.edit(embed=new_embed)
+            return prev_Date
 
-    # if hasnt posted this week: post embed and save date
-    elif not cond1:
-        rawe_ceek_emoji = util.get_discord_data("rawe_ceek_emoji")
-        no_rawe_ceek_emoji = util.get_discord_data("no_rawe_ceek_emoji")
-        await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
-        return today
+        # if not same week: post new embed and save date
+        elif not posted_cond:
+            rawe_ceek_emoji = util.get_discord_data("rawe_ceek_emoji")
+            no_rawe_ceek_emoji = util.get_discord_data("no_rawe_ceek_emoji")
+            await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
+            return today
+
+    else: # not race week, only needs to update next week, so post new embed if there is none this week
+        if not posted_cond: # post new embed and save date
+            rawe_ceek_emoji = util.get_discord_data("rawe_ceek_emoji")
+            no_rawe_ceek_emoji = util.get_discord_data("no_rawe_ceek_emoji")
+            await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
+            return today
 
 
 async def status():
