@@ -28,6 +28,7 @@ async def get_no_rawe_ceek_embed(Date):
     des = "Neste dato er " + no_date  # description for embed message
     embed = discord.Embed(title=title, description=des)
     embed.set_image(url="attachment://sad.png")
+    return embed
 
 async def update_status_message():
     today = date.today()
@@ -125,8 +126,7 @@ async def update(ctx):
     """On recieving update command with the bots prefix, executes the weekly embed send/edit
     with todays updated info. Also updates the status message just incase.
     If the command was not in #bot channel, delete both the command message and the reply message."""
-    today = date.today()
-    await execute_week_embed(today)
+    await execute_week_embed()
     await update_status_message()
 
     # send reply message in the same channel
