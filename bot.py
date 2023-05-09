@@ -113,8 +113,8 @@ async def execute_week_embed():
             await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
             return
 
-async def status():
-    # Loops after 24 hours
+async def status(loop_time):
+    # Loops after given amount of hours
     while True:
         # Check if it has sent this week: edits the weeks embed, or if not sends a new embed.
         await execute_week_embed()  # also updates the previous date if it sent a new one
@@ -123,7 +123,7 @@ async def status():
         await update_status_message()
 
         print("Loop complete",datetime.today(),"UTC")
-        await sleep(24*3600)  # loops again after 24 hours (in seconds)
+        await sleep(loop_time*3600)  # loops again after given hours (in seconds)
 
 @bot.command(aliases=["upd"])
 async def update(ctx):
@@ -149,7 +149,7 @@ async def update(ctx):
 @bot.event
 async def on_ready():
     # await send_rawe_ceek_embed()  # send message on startup
-    bot.loop.create_task(status())   # then start the loop
+    bot.loop.create_task(status(loop_time=10))   # then start the loop
     print("PIERRRE GASLYYYY!")
 
 # run the bot
