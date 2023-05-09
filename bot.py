@@ -122,7 +122,7 @@ async def status():
         # Lastly update the status message
         await update_status_message()
 
-        print("Loop complete",datetime.today())
+        print("Loop complete",datetime.today(),"UTC")
         await sleep(24*3600)  # loops again after 24 hours (in seconds)
 
 @bot.command(aliases=["upd"])
@@ -144,7 +144,7 @@ async def update(ctx):
         await reply.delete()
         await ctx.message.delete()
 
-    print("Update command executed",datetime.today())
+    print("Update command executed",datetime.today(),"UTC")
 
 @bot.event
 async def on_ready():
