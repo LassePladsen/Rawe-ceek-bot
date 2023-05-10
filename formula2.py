@@ -39,8 +39,8 @@ def get_calendar():
                     time = race[2]
                     if time != "TBC":
                         start, stop = time.split("-")
-                        start = util.get_gmt_plus_one(start, country)
-                        stop = util.get_gmt_plus_one(stop, country)
+                        start = util.get_oslo_time(start, country)
+                        stop = util.get_oslo_time(stop, country)
                         race[2] = f"{start}-{stop}"
                 races.append(race)
 
