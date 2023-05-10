@@ -1,3 +1,4 @@
+testing.py
 discord_data.json
-.idea
+*.idea
 __pycache__
