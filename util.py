@@ -115,7 +115,7 @@ def make_Date(date_str):
         monthi = month_name_to_index(month)
     return date(int(year),int(monthi),int(day))
 
-def convert_timezone_oslo(time):
+def timezone_to_oslo(time):
     """Converts a time of panda.Timestamp object to norwegian timezone."""
     no_time = time.tz_localize("Europe/Oslo")
     out_time = str(no_time).split(" ")[1]
@@ -205,7 +205,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
-                    out_time = convert_timezone_oslo(local_time)
+                    out_time = timezone_to_oslo(local_time)
                     hour = int(out_time.split(":")[0])
                     timing_dict[hour] = f"F1 {name}: {out_time}"
 
@@ -240,7 +240,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
-                    out_time = convert_timezone_oslo(local_time)
+                    out_time = timezone_to_oslo(local_time)
                     output += f"F1 {name}: {out_time}" + "\n"
 
         output += "\n"  # Final blank space to seperate the days in the output
@@ -264,7 +264,7 @@ def print_all_days(Event,f2_calendar,f2_days,f1_days):
             output += day
     return output
 
-def get_gmt_plus_one(local_time, country):
+def get_oslo_time(local_time, country):
     local_time = f"2023-01-01 {local_time}"
 
     # Map country to its timezone
@@ -276,14 +276,14 @@ def get_gmt_plus_one(local_time, country):
     # Create timezone object for local timezone
     local_tz = pytz.timezone(timezone)
 
-    # Create timezone object for GMT+1
+    # Create timezone object for Oslo time
     gmt_plus_one = pytz.timezone('Europe/Oslo')
 
-    # Convert local time to GMT+1 time
-    gmt_plus_one_time = local_tz.localize(dt).astimezone(gmt_plus_one)
+    # Convert local time to Oslo time
+    oslo_time = local_tz.localize(dt).astimezone(gmt_plus_one)
 
-    # Return GMT+1 time in ISO format
-    return f"{gmt_plus_one_time.hour}:{gmt_plus_one_time.minute}"
+    # Return Oslo time in ISO format
+    return f"{oslo_time.hour}:{oslo_time.minute}"
 
 def get_country_code(country_name):
     # Dictionary mapping country names to ISO codes

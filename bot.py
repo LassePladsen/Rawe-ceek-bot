@@ -30,7 +30,7 @@ async def get_no_rawe_ceek_embed(Date):
     en_date = util.get_event_date_str(f1.get_next_week_event(Date))
     no_date = str(int(en_date.split(" ")[0])) + " " + util.month_to_norwegian(en_date.split(" ")[1],
                                                                               caps=False)
-    des = "Neste dato er " + no_date  # description for embed message
+    des = "Neste race er " + no_date  # description for embed message
     embed = discord.Embed(title=title, description=des)
     embed.set_image(url="attachment://sad.png")
     return embed
