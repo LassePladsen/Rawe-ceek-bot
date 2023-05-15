@@ -343,7 +343,7 @@ def until_next_race_week(Date):
     if sunday in dates:
         return 0
 
-    counter = 1
+    counter = 0
     while sunday not in dates:
         # Increase week by 1 and check again
         sunday = sunday[:-2] + str(int(sunday[-2:]) + 7)
