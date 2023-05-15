@@ -186,14 +186,16 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
             if len(f2_day) > 0:
                 for name, time in f2_day:
                     if name == "Race":
-                        name = "**Feature Race**"
+                        title = "**F2 Feature Race**"
+                    else:
+                        title = f"F2 {name}"
 
                     if time == "TBC":
-                        TBC_sessions.append(f"F2 {name}: {time}")
+                        TBC_sessions.append(f"{title}: {time}")
 
                     else:
                         hour = int(time.split(":")[0])
-                        timing_dict[hour] = f"F2 {name}: {time}"
+                        timing_dict[hour] = f"{title}: {time}"
 
             # Lastly save all f1 sessions mapped by time
             if len(f1_day) > 0:
@@ -201,13 +203,16 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     # Extract session name
                     name = str(f1_session).split(" - ")[1]
                     if name == "Race":
-                        name = "**Feature Race**"
+                        title = "**F1 Feature Race**"
+                    else:
+                        title = f"F1 {name}"
+
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
                     out_time = timezone_to_oslo(local_time)
                     hour = int(out_time.split(":")[0])
-                    timing_dict[hour] = f"F1 {name}: {out_time}"
+                    timing_dict[hour] = f"{title}: {out_time}"
 
             # Now first print the F2 sessions which have TBC start times
             if len(TBC_sessions) > 0:
@@ -227,8 +232,10 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
             if len(f2_day) > 0:
                 for name,time in f2_day:
                     if name == "Race":
-                        name = "Feature Race"
-                    output += f"F2 {name}: {time}" + "\n"
+                        title = "**F2 Feature Race**"
+                    else:
+                        title = f"F2 {name}"
+                    output += f"{title}: {time} \n"
 
             # Lastly print the f1 sessions that day
             if len(f1_day) > 0:
@@ -236,12 +243,14 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     # Extract session name
                     name = str(f1_session).split(" - ")[1]
                     if name == "Race":
-                        name = "Feature Race"
+                        title = "**F1 Feature Race**"
+                    else:
+                        title = f"F1 {name}"
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
                     out_time = timezone_to_oslo(local_time)
-                    output += f"F1 {name}: {out_time}" + "\n"
+                    output += f"{title}: {out_time} \n"
 
         output += "\n"  # Final blank space to seperate the days in the output
         return output
