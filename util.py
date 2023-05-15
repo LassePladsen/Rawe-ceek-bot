@@ -185,8 +185,10 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
             # Secondly save all f2 sessions mapped by time
             if len(f2_day) > 0:
                 for name, time in f2_day:
-                    if name == "Race":
+                    if name == "Feature Race":
                         title = "**F2 Feature Race**"
+                    elif name == "Qualifying Session":
+                        title = "F2 Qualifying"
                     else:
                         title = f"F2 {name}"
 
@@ -206,7 +208,6 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                         title = "**F1 Feature Race**"
                     else:
                         title = f"F1 {name}"
-
 
                     # Extract session time and convert to norwegian time zone
                     local_time = f1_session.date
@@ -231,8 +232,10 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
             # Secondly print all f2 sessions that day
             if len(f2_day) > 0:
                 for name,time in f2_day:
-                    if name == "Race":
+                    if name == "Feature Race":
                         title = "**F2 Feature Race**"
+                    elif name == "Qualifying Session":
+                        title = "F2 Qualifying"
                     else:
                         title = f"F2 {name}"
                     output += f"{title}: {time} \n"
