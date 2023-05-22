@@ -192,12 +192,18 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     else:
                         title = f"F2 {name}"
 
+
+                    # special case for it the f2 timing is TBC
                     if time == "TBC":
                         TBC_sessions.append(f"{title}: {time}")
-
                     else:
                         hour = int(time.split(":")[0])
-                        timing_dict[hour] = f"{title}: {time}"
+                        try:  # check if there already is a session on the same hour
+                            timing_dict[hour]
+                        except KeyError:  # if not then add this one with the hour as key
+                            timing_dict[hour] = f"{title}: {time}"
+                        else: # if there is then then add it as the next hour, this is only for sorting
+                            timing_dict[hour+1] = f"{title}: {time}"
 
             # Lastly save all f1 sessions mapped by time
             if len(f1_day) > 0:
@@ -397,4 +403,3 @@ def get_all_week_info(Date, weeks_left=True, language="norwegian"):
             pass    # add other language(s) for 'remaining eventts' here
 
     return eventtitle,eventinfo
-

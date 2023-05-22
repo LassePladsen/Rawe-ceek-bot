@@ -17,35 +17,38 @@ def get_calendar():
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        country = soup.find("div", {"class": "country-circuit-name"}).text
-        if "-" in country: # If circuit name is more than the country like 'Italy-Emilia Romagna'
-            country = country.split("-")[0]
+        try:
+            country = soup.find("div", {"class": "country-circuit-name"}).text
+            if "-" in country: # If circuit name is more than the country like 'Italy-Emilia Romagna'
+                country = country.split("-")[0]
 
-        circuit = soup.find("div", {"class": "country-circuit"}).text
-        round_number, date = soup.find("div", {"class": "schedule"}).text.split("|")
-        raceday = date.split("-")[1][:-5]
-        sessions = soup.find_all("div", {"class": "pin"})
-        races = []
-        for session in sessions:
-            race = []
-            for elements in session:
-                if "displayed" in elements.text:
+            circuit = soup.find("div", {"class": "country-circuit"}).text
+            round_number, date = soup.find("div", {"class": "schedule"}).text.split("|")
+            raceday = date.split("-")[1][:-5]
+            sessions = soup.find_all("div", {"class": "pin"})
+            races = []
+            for session in sessions:
+                race = []
+                for elements in session:
+                    if "displayed" in elements.text:
+                        continue
+                    race.append(elements.text)
+                if "Free Practice" in race:
                     continue
-                race.append(elements.text)
-            if "Free Practice" in race:
-                continue
-            if len(race) > 0:
-                if len(race) == 3:
-                    time = race[2]
-                    if time != "TBC":
-                        start, stop = time.split("-")
-                        start = util.get_oslo_time(start, country)
-                        stop = util.get_oslo_time(stop, country)
-                        race[2] = f"{start}-{stop}"
-                races.append(race)
+                if len(race) > 0:
+                    if len(race) == 3:
+                        time = race[2]
+                        if time != "TBC":
+                            start, stop = time.split("-")
+                            start = util.get_oslo_time(start, country)
+                            stop = util.get_oslo_time(stop, country)
+                            race[2] = f"{start}-{stop}"
+                    races.append(race)
 
-        formula_2[raceday] = round_number.strip(), country, circuit, date, races
-    return formula_2
+            formula_2[raceday] = round_number.strip(), country, circuit, date, races
+        except AttributeError:  # catch exception for if race weekend has been cancelled
+            continue
+        return formula_2
 
 def extract_days(Event, f2_calendar):
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
@@ -89,4 +92,3 @@ def check_race_week(Date, f2_calendar):
         return True
     else:
         return False
-
