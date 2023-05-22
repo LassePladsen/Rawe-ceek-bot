@@ -163,20 +163,20 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
     if f2.check_race_week(Date, f2_calendar):
         f2_day = f2_event.get(day)
     else:
-        f2_day = []
+        f2_day = None
 
     f1_day = f1_event.get(day)
 
     output = ""
     # Firstly print the day if there is a session
-    if f2_day or f1_day:
+    if f2_day is not None or f1_day is not None:
         output += discord_format + daytitle.capitalize() + discord_format[::-1] + "\n"
 
         timing_dict = {}
         TBC_sessions = []
         if time_sort:
             # Secondly save all f2 sessions mapped by time
-            if f2_day:
+            if f2_day is not None:
                 for name, time in f2_day:
                     if name == "Feature Race":
                         title = "**F2 Feature Race**"
@@ -191,13 +191,13 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                         TBC_sessions.append(f"{title}: {time}")
                     else: # now sort the sessions by hour
                         hour = int(time.split(":")[0])
-                        if timing_dict[hour]: # check if there already is a session on the same hour
+                        if timing_dict.get(hour) is not None: # check if there already is a session on the same hour
                             timing_dict[hour + 1] = f"{title}: {time}" # then add it as the next hour instead
                         else:   # if not then add it as the hour
                             timing_dict[hour] = f"{title}: {time}"#
 
             # Lastly save all f1 sessions mapped by time
-            if f1_day:
+            if f1_day is not None:
                 for f1_session in f1_day:
                     # Extract session name
                     name = str(f1_session).split(" - ")[1]
@@ -225,9 +225,9 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                 output += timing_dict[hour] + "\n"
 
 
-        elif not time_sort:
+        else:
             # Secondly print all f2 sessions that day
-            if f2_day:
+            if f2_day is not None:
                 for name,time in f2_day:
                     if name == "Feature Race":
                         title = "**F2 Feature Race**"
@@ -238,7 +238,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     output += f"{title}: {time} \n"
 
             # Lastly print the f1 sessions that day
-            if f1_day:
+            if f1_day is not None:
                 for f1_session in f1_day:
                     # Extract session name
                     name = str(f1_session).split(" - ")[1]
