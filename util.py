@@ -161,29 +161,22 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
     Date = get_event_Date(Event)
     # Get the day sessions if they exist
     if f2.check_race_week(Date, f2_calendar):
-        try:
-            f2_day = f2_event[day]
-        except KeyError:
-            f2_day = []
+        f2_day = f2_event.get(day)
     else:
         f2_day = []
 
-    try:
-        f1_day = f1_event[day]
-    except KeyError:
-        f1_day = []
+    f1_day = f1_event.get(day)
 
     output = ""
-
     # Firstly print the day if there is a session
-    if len(f2_day)>0 or len(f1_day)>0:
+    if f2_day or f1_day:
         output += discord_format + daytitle.capitalize() + discord_format[::-1] + "\n"
 
         timing_dict = {}
         TBC_sessions = []
         if time_sort:
             # Secondly save all f2 sessions mapped by time
-            if len(f2_day) > 0:
+            if f2_day:
                 for name, time in f2_day:
                     if name == "Feature Race":
                         title = "**F2 Feature Race**"
@@ -196,17 +189,15 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     # special case for it the f2 timing is TBC
                     if time == "TBC":
                         TBC_sessions.append(f"{title}: {time}")
-                    else:
+                    else: # now sort the sessions by hour
                         hour = int(time.split(":")[0])
-                        try:  # check if there already is a session on the same hour
-                            timing_dict[hour]
-                        except KeyError:  # if not then add this one with the hour as key
-                            timing_dict[hour] = f"{title}: {time}"
-                        else: # if there is then then add it as the next hour, this is only for sorting
-                            timing_dict[hour+1] = f"{title}: {time}"
+                        if timing_dict[hour]: # check if there already is a session on the same hour
+                            timing_dict[hour + 1] = f"{title}: {time}" # then add it as the next hour instead
+                        else:   # if not then add it as the hour
+                            timing_dict[hour] = f"{title}: {time}"#
 
             # Lastly save all f1 sessions mapped by time
-            if len(f1_day) > 0:
+            if f1_day:
                 for f1_session in f1_day:
                     # Extract session name
                     name = str(f1_session).split(" - ")[1]
@@ -222,7 +213,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     timing_dict[hour] = f"{title}: {out_time}"
 
             # Now first print the F2 sessions which have TBC start times
-            if len(TBC_sessions) > 0:
+            if TBC_sessions:
                 for f2_tbc_session in TBC_sessions:
                     output += f2_tbc_session + "\n"
 
@@ -236,7 +227,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
 
         elif not time_sort:
             # Secondly print all f2 sessions that day
-            if len(f2_day) > 0:
+            if f2_day:
                 for name,time in f2_day:
                     if name == "Feature Race":
                         title = "**F2 Feature Race**"
@@ -247,7 +238,7 @@ def print_day_sessions(Event, day, f2_calendar, f2_event,
                     output += f"{title}: {time} \n"
 
             # Lastly print the f1 sessions that day
-            if len(f1_day) > 0:
+            if f1_day:
                 for f1_session in f1_day:
                     # Extract session name
                     name = str(f1_session).split(" - ")[1]

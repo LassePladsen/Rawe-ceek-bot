@@ -45,7 +45,6 @@ def get_next_week_event(Date):
             sunday = sunday.replace(str(Date.month), str(Date.month + 1))
     return get_week_event(util.make_Date(sunday))
 
-
 def get_remaining_dates(Date):
     dt = datetime.combine(Date, datetime.min.time())
     Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
