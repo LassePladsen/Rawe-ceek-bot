@@ -140,7 +140,7 @@ def get_event_date_object(event: "fastf1.events.Event") -> "datetime.date":
     return date_
 
 def print_day_sessions(event:"fastf1.events.Event", day, f2_calendar, f2_event,
-                       f1_event, time_sort=True, discord_format="__"):
+                       f1_event, time_sort=True, discord_day_format="__"):
     """Prints category and time for all F1 and F2 sessions from given list containing all sessions for that day.
     If 'time_sort' defaults to true and will sort the print by time instead of as F2 sessions -> F1 sessions
 
@@ -159,15 +159,16 @@ def print_day_sessions(event:"fastf1.events.Event", day, f2_calendar, f2_event,
         day = day_to_english(day)
 
     date_ = get_event_date_object(event)
-    # Get the day sessions if they exist
+
     if f2.check_race_week(date_, f2_calendar):
         f2_day = f2_event.get(day)
     else:
         f2_day = None
-
     f1_day = f1_event.get(day)
 
-    output = discord_format + daytitle.capitalize() + discord_format[::-1] + "\n"
+    if f2_day is None and f1_day is None:
+        return None
+
     if time_sort:  # sort output by time
         timing_dict = {}
         TBC_sessions = []
@@ -208,6 +209,8 @@ def print_day_sessions(event:"fastf1.events.Event", day, f2_calendar, f2_event,
                 hour = int(out_time.split(":")[0])
                 timing_dict[hour] = f"{title}: {out_time}"
 
+        output = discord_day_format + daytitle.capitalize() + discord_day_format[::-1] + "\n"
+
         # Now first print the F2 sessions which have TBC start times
         if TBC_sessions:
             for f2_tbc_session in TBC_sessions:
@@ -222,7 +225,7 @@ def print_day_sessions(event:"fastf1.events.Event", day, f2_calendar, f2_event,
 
 
     else:  # dont time sort
-        output = discord_format + daytitle.capitalize() + discord_format[::-1] + "\n"
+        output = discord_day_format + daytitle.capitalize() + discord_day_format[::-1] + "\n"
         # Secondly print all f2 sessions that day
         if f2_day is not None:
             for name,time in f2_day:
@@ -377,14 +380,14 @@ def get_remaining_events(date_:"datetime.date"):
 def get_all_week_info(date_:"datetime.date", weeks_left=True, language="norwegian"):
     """Returns two strings containing print title and print text
     for sending in discord."""
-    Event = f1.get_week_event(date_)
+    event = f1.get_week_event(date_)
 
-    f1_days = f1.sort_sessions_by_day(Event)
+    f1_days = f1.sort_sessions_by_day(event)
     f2_calendar = f2.get_calendar()
-    f2_days = f2.extract_days(Event, f2_calendar)
+    f2_days = f2.extract_days(event, f2_calendar)
 
-    eventtitle = f1.print_event_info(Event)
-    eventinfo = print_all_days(Event, f2_calendar, f2_days, f1_days)
+    eventtitle = f1.print_event_info(event)
+    eventinfo = print_all_days(event, f2_calendar, f2_days, f1_days)
 
     if weeks_left: # Print remaining race weeks in the season
         if language.lower() == "norwegian":

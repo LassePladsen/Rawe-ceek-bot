@@ -16,7 +16,7 @@ def get_week_event(date_:"datetime.date"):
     Input date must be a datetime.date object."""
     sunday_date = util.get_sunday_date_str(date_)
 
-    race_dates = np.asarray(Race_schedule["EventDate"].to_string(index=False).split()) # array of all season race dates
+    race_dates = np.asarray(Race_schedule["EventDate"].to_string(index=False).split())
     if sunday_date in race_dates:
         race_index = np.where(sunday_date == race_dates)[0][0] + 1
         return fastf1.get_event(date_.year, race_index)
@@ -100,7 +100,7 @@ def sort_sessions_by_day(event:"fastf1.events.Event"):
 
     return session_days
 
-def print_event_info(event:"fastf1.events.Event", upper_case=True, discord_format="__**"):
+def print_event_info(event:"fastf1.events.Event", upper_case=True, event_discord_format="**"):
     """Prints name and date for given race event, must be fastf1.Event object.
     Supports discord formatting given as optional argument."""
     name = event["EventName"]
@@ -116,9 +116,9 @@ def print_event_info(event:"fastf1.events.Event", upper_case=True, discord_forma
 
     out_date = start_day + "-" + end_day + " " + month
 
-    if discord_format is not None:
+    if event_discord_format is not None:
         # Print with given discord formatting
-        return f"{discord_format}{name} {out_date}{discord_format[::-1]}\n"
+        return f"{event_discord_format}{name} {out_date}{event_discord_format[::-1]}\n"
     else: # Print without
         return f"{name} {out_date}\n"
 
