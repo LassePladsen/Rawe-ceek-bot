@@ -92,7 +92,7 @@ async def execute_week_embed():
     prev_date = message.created_at.date()
 
     # If it has posted this week and its a race week: only edit the embed to update f2 times
-    posted_cond = util.get_sunday_date(today) == util.get_sunday_date(prev_date)  # is same week as prev post?
+    posted_cond = util.get_sunday_date_str(today) == util.get_sunday_date_str(prev_date)  # is same week as prev post?
     if f1.check_race_week(today):
         if posted_cond:  # same week then edit the embed
             new_embed = await get_rawe_ceek_embed(today)
