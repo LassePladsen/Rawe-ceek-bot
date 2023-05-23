@@ -50,7 +50,7 @@ def get_calendar():
             continue
         return formula_2
 
-def extract_days(Event, f2_calendar):
+def extract_days(event:"fastf1.events.Event", f2_calendar):
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
 
@@ -66,8 +66,8 @@ def extract_days(Event, f2_calendar):
             'Sunday': [['Feature Race', 'TBC']]}
             }
     """
-    event_date = util.get_event_date_str(Event)
-    event_Date = util.get_event_Date(Event)
+    event_date = util.get_event_date_str(event)
+    event_Date = util.get_event_date_object(event)
 
     if check_race_week(event_Date, f2_calendar):
         f2_event = f2_calendar[event_date][4]
@@ -85,9 +85,9 @@ def extract_days(Event, f2_calendar):
     else:
         return []
 
-def check_race_week(Date, f2_calendar):
+def check_race_week(date_:"datetime.date", f2_calendar):
     """Boolean return for if the given date (datetime.date object) is a f2 race week."""
-    sunday = util.get_sunday_date(Date)
+    sunday = util.get_sunday_date_str(date_)
     if util.format_date(str(sunday)) in list(f2_calendar.keys()):
         return True
     else:
