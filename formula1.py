@@ -7,8 +7,8 @@ import util
 
 fastf1.set_log_level('ERROR')  # lower log level to remove "default cache enabled" warning
 
-today = date.today()
-Race_schedule = fastf1.get_event_schedule(today.year, include_testing=False)
+TODAY = date.today()
+Race_schedule = fastf1.get_event_schedule(TODAY.year, include_testing=False)
 
 def get_week_event(date_:"datetime.date"):
     """Returns the fastf1 event object for the week of the given date.

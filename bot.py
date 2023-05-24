@@ -11,23 +11,23 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&",intents=intents,case_insensitive=True)
 
 # Discord Channel ID
-channel_id = int(util.get_discord_data("channel_id"))
+CHANNEL_ID = int(util.get_discord_data("channel_id"))
 
-async def get_rawe_ceek_embed(Date):
-    title, des = util.get_all_week_info(Date)  # title and description for the embed message
+async def get_rawe_ceek_embed(date_: "datetime.date"):
+    title, des = util.get_all_week_info(date_)  # title and description for the embed message
     embed = discord.Embed(title=title, description=des)
     embed.set_image(url="attachment://race.png")
     return embed
 
-async def get_no_rawe_ceek_embed(Date):
-    week_count = util.until_next_race_week(Date)
+async def get_no_rawe_ceek_embed(date_: "datetime.date"):
+    week_count = util.until_next_race_week(date_)
     if week_count == 1:
         title = str(week_count) + " uke til neste rawe ceek..."  # title for embed message
 
     else:
         title = str(week_count) + " uker til neste rawe ceek..."  # title for embed message
 
-    en_date = util.get_event_date_str(f1.get_next_week_event(Date))
+    en_date = util.get_event_date_str(f1.get_next_week_event(date_))
     no_date = str(int(en_date.split(" ")[0])) + " " + util.month_to_norwegian(en_date.split(" ")[1],
                                                                               caps=False)
     des = "Neste race er " + no_date  # description for embed message
@@ -47,26 +47,26 @@ async def update_status_message():
         activity = discord.Activity(type=discord.ActivityType.watching, name="nothing... :(")
         await bot.change_presence(status=discord.Status.online, activity=activity)
 
-async def send_week_embed(Date,emoji_rawe_ceek=None
-                          ,emoji_no_rawe_ceek=None):
+async def send_week_embed(date_: "datetime.date", emoji_rawe_ceek=None
+                          , emoji_no_rawe_ceek=None):
     """Sends timing embed and returns discord.Message object for later editing"""
     # If its race week post the times, if not then post no. of weeks until next race week
-    if f1.check_race_week(Date):
+    if f1.check_race_week(date_):
         rawe_ceek_image = util.get_discord_data("rawe_ceek_image")
         file = discord.File(rawe_ceek_image, filename="race.png")
-        embed = await get_rawe_ceek_embed(Date)
+        embed = await get_rawe_ceek_embed(date_)
 
-        message = await bot.get_channel(channel_id).send(file=file, embed=embed)
+        message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
         if emoji_rawe_ceek:
             await message.add_reaction(emoji_rawe_ceek)
 
     else:  # if not race week then post no. weeks until n# ext race week
         # Count how many weeks until next race week
-        embed = await get_no_rawe_ceek_embed(Date)
+        embed = await get_no_rawe_ceek_embed(date_)
         no_rawe_ceek_image = util.get_discord_data("no_rawe_ceek_image")
         file = discord.File(no_rawe_ceek_image, filename="sad.png")
 
-        message = await bot.get_channel(channel_id).send(file=file, embed=embed)
+        message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
         if emoji_no_rawe_ceek:
             await message.add_reaction(emoji_no_rawe_ceek)
 
@@ -76,7 +76,7 @@ async def get_last_bot_message(max_messages=15):
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
     bot_id = util.get_discord_data("bot_id")  # the bots user id to check the previous messages
-    prev_msgs = await bot.get_channel(channel_id).history(limit=max_messages).flatten() # list of prev messages
+    prev_msgs = await bot.get_channel(CHANNEL_ID).history(limit=max_messages).flatten() # list of prev messages
     prev_ids = [str(msg.author.id) for msg in prev_msgs]    # list of the user ids for all prev messages
 
     if bot_id in prev_ids:
@@ -151,5 +151,4 @@ async def on_ready():
     bot.loop.create_task(status(loop_hours=10))   # start the loop
     print("PIERRRE GASLYYYY!")
 
-# run the bot
 bot.run(util.get_discord_data("bot_token"))

@@ -128,7 +128,7 @@ def timezone_to_oslo(time):
     out_time = str(hour_corrected) + out_time[2:5]
     return out_time
 
-def get_event_date_str(event:"fastf1.events.Event") -> str:
+def get_event_date_str(event: "fastf1.events.Event") -> str:
     """Gets event date string from fastf1.Event object and cuts away the time info.
     Formatted like '07 May'"""
     return format_date(str(event["EventDate"]).split(" ")[0])
@@ -139,7 +139,7 @@ def get_event_date_object(event: "fastf1.events.Event") -> "datetime.date":
     date_ = make_date_object(get_sunday_date_str(make_date_object(string)))
     return date_
 
-def print_day_sessions(event:"fastf1.events.Event", day, f2_calendar, f2_event,
+def print_day_sessions(event: "fastf1.events.Event", day, f2_calendar, f2_event,
                        f1_event, time_sort=True, discord_day_format="__"):
     """Prints category and time for all F1 and F2 sessions from given list containing all sessions for that day.
     If 'time_sort' defaults to true and will sort the print by time instead of as F2 sessions -> F1 sessions
@@ -255,7 +255,7 @@ def print_day_sessions(event:"fastf1.events.Event", day, f2_calendar, f2_event,
     output += "\n"  # Final blank space to seperate different days in the output
     return output
 
-def print_all_days(event:"fastf1.events.Event", f2_calendar, f2_days, f1_days):
+def print_all_days(event: "fastf1.events.Event", f2_calendar, f2_days, f1_days):
     output = ""
 
     thursday_title = "Torsdag"
@@ -345,7 +345,7 @@ def get_country_code(country_name):
     else:
         return None
 
-def until_next_race_week(date_:"datetime.date"):
+def until_next_race_week(date_: "datetime.date"):
     """Returns integer of how many weeks until next race week from given date."""
     dates = f1.get_remaining_dates(date_)
     sunday = get_sunday_date_str(date_)
@@ -369,7 +369,7 @@ def until_next_race_week(date_:"datetime.date"):
         counter += 1
     return counter
 
-def get_remaining_events(date_:"datetime.date"):
+def get_remaining_events(date_: "datetime.date"):
     """Returns int of how many remaining f1 events there are from a given date.
 
     """
@@ -377,7 +377,7 @@ def get_remaining_events(date_:"datetime.date"):
     Remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
     return len(Remaining_schedule)
 
-def get_all_week_info(date_:"datetime.date", weeks_left=True, language="norwegian"):
+def get_all_week_info(date_: "datetime.date", weeks_left=True, language="norwegian"):
     """Returns two strings containing print title and print text
     for sending in discord."""
     event = f1.get_week_event(date_)
