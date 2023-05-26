@@ -6,6 +6,7 @@ from datetime import date,datetime
 
 import util
 import formula1 as f1
+import formula2 as f2
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&",intents=intents,case_insensitive=True)
@@ -116,6 +117,8 @@ async def execute_week_embed():
 async def status(loop_hours):
     # Loops after given amount of hours
     while True:
+        f2.store_calendar_to_json(f2.scrape_calendar())  # update the f2 calendar json
+
         # Check if it has sent this week: edits the weeks embed, or if not sends a new embed.
         await execute_week_embed()  # also updates the previous date if it sent a new one
 

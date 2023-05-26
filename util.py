@@ -7,11 +7,11 @@ import json
 import formula2 as f2
 import formula1 as f1
 
-def get_discord_data(datakey,file="discord_data.json"):
+def get_discord_data(key: str, file: str = "discord_data.json") -> str:
     """Extracts value from given datakey from a given .json filename """
     with open(file, "r") as infile:
         data = json.load(infile)
-    return data[datakey]
+    return data[key]
 
 def day_string_formatting(day):
     """Gives a string containing a day number formatted like '05' instead of '5' (example).
@@ -383,7 +383,7 @@ def get_all_week_info(date_: "datetime.date", weeks_left=True, language="norwegi
     event = f1.get_week_event(date_)
 
     f1_days = f1.sort_sessions_by_day(event)
-    f2_calendar = f2.get_calendar()
+    f2_calendar = f2.extract_json_calendar()
     f2_days = f2.extract_days(event, f2_calendar)
 
     eventtitle = f1.print_event_info(event)

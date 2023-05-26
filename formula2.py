@@ -1,15 +1,17 @@
 import requests
+import json
 from bs4 import BeautifulSoup
+from typing import Union
 
 import util
 
-def get_calendar():
+def scrape_calendar() -> dict[str, list[Union[str, list[str]]]]:
     """
     Scrapes the F2 schedule from the F2 ebsite. Returns a dictionary mapping
     the sunday dates to the event infos.
     All credit goes to ENils1: https://github.com/ENils1
     """
-    formula_2 = {}
+    f2_events = {}
 
     for i in range(1054, 1064):
         url = f'https://www.fiaformula2.com/Results?raceid={i}'
@@ -43,14 +45,45 @@ def get_calendar():
                             start = util.get_oslo_time(start, country)
                             stop = util.get_oslo_time(stop, country)
                             race[2] = f"{start}-{stop}"
+
+                # Format times, add zero to beginning or end so the times are formatted as: "15:55-16:25"
+                for j in range(len(race)):
+                    jrace = race[j]
+                    if not ":" in jrace:
+                        continue
+                    if len(jrace) != 11:
+                        if jrace[-2] == ":":  # missing trailing zero
+                            jrace += "0"
+                        elif jrace[0] != "0":  # missing beginning zero
+                            jrace = "0" + jrace
+                    race[j] = jrace
                     races.append(race)
 
-            formula_2[raceday] = round_number.strip(), country, circuit, date, races
+            f2_events[raceday] = [round_number.strip(), country, circuit, date, races]
         except AttributeError:  # catch exception for if race weekend has been cancelled
             continue
-        return formula_2
+        return f2_events
 
-def extract_days(event:"fastf1.events.Event", f2_calendar):
+def store_calendar_to_json(calendar: dict[str, list[Union[str, list[str]]]],
+                           json_file: str = "f2_calendar.json") -> None:
+    """Saves f2 calendar data taken from scrape_calendar() and saves it to json, but only if there is new information.
+    Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
+    """
+    with open(json_file, "r") as infile:
+        data = json.load(infile)
+        for key in calendar:
+            if key in data:  # dont overwrite if date already is in the json
+                return
+            data[key] = calendar[key]
+    with open(json_file, "w") as outfile:
+        json.dump(data,outfile)
+
+def extract_json_calendar(json_file: str = "f2_calendar.json") -> dict[str, list[Union[str, list[str]]]]:
+    """Extracts the calendar data from the json file."""
+    with open(json_file, "r") as infile:
+        return json.load(infile)
+
+def extract_days(event:"fastf1.events.Event", f2_calendar) -> dict[str,list[list[str]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
 
@@ -74,7 +107,10 @@ def extract_days(event:"fastf1.events.Event", f2_calendar):
 
         session_days = {}
         for day in f2_event:
-            dayname = day.pop(1)
+            try:
+                dayname = day.pop(1)
+            except IndexError:
+                continue
 
             # Initialize list in the dictionary for seperate each day if it hasnt already
             if dayname not in list(session_days.keys()):
