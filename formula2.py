@@ -1,11 +1,10 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-from typing import Union
 
 import util
 
-def scrape_calendar() -> dict[str, list[Union[str, list[str]]]]:
+def scrape_calendar() -> dict[str, list]:
     """
     Scrapes the F2 schedule from the F2 ebsite. Returns a dictionary mapping
     the sunday dates to the event infos.
@@ -64,7 +63,7 @@ def scrape_calendar() -> dict[str, list[Union[str, list[str]]]]:
             continue
         return f2_events
 
-def store_calendar_to_json(calendar: dict[str, list[Union[str, list[str]]]],
+def store_calendar_to_json(calendar: dict[str, list],
                            json_file: str = "f2_calendar.json") -> None:
     """Saves f2 calendar data taken from scrape_calendar() and saves it to json, but only if there is new information.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
@@ -78,7 +77,7 @@ def store_calendar_to_json(calendar: dict[str, list[Union[str, list[str]]]],
     with open(json_file, "w") as outfile:
         json.dump(data,outfile)
 
-def extract_json_calendar(json_file: str = "f2_calendar.json") -> dict[str, list[Union[str, list[str]]]]:
+def extract_json_calendar(json_file: str = "f2_calendar.json") -> dict[str, list]:
     """Extracts the calendar data from the json file."""
     with open(json_file, "r") as infile:
         return json.load(infile)
