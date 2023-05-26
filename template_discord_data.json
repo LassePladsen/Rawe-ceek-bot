@@ -4,8 +4,8 @@
   "channel_id": "",
   "bot_channel_id": "",
   "test_channel_id": "",
-  "rawe_ceek_image": "",
-  "no_rawe_ceek_image": "",
+  "rawe_ceek_image": "race_week_image.png",
+  "no_rawe_ceek_image": "no_race_week_image.png",
   "rawe_ceek_emoji": "",
   "no_rawe_ceek_emoji": ""
 }
