@@ -95,14 +95,14 @@ def day_to_english(day):
     no_days = ["mandag","tirsdag","onsdag","torsdag","fredag","lørdag","søndag"]
     return en_days[no_days.index(day.lower())]
 
-def format_date(date_:str) -> str:
+def format_date(date_: str) -> str:
     """Reformats a date string given as 'year-mm-dd hh:mm:ss' to 'dd Month' (with month names)."""
     date_ = date_.split(" ")[0]
     month = month_index_to_name(int(date_[5:7]))
     day = date_[8:]
     return day + " " + month
 
-def make_date_object(date_:str) -> "datetime.date":
+def make_date_object(date_: str) -> "datetime.date":
     """Creates a datatime.date object from given date string.
     String can either be in the 'yyyy-mm-dd' format or 'dd Month' (with month names) format, in
     the latter case the year will be the current year.."""

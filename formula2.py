@@ -2,6 +2,8 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from typing import Union
+import os
+from datetime import date
 
 import util
 
@@ -77,6 +79,19 @@ def store_calendar_to_json(calendar: dict[str, list[Union[str, list[str]]]],
             data[key] = calendar[key]
     with open(json_file, "w") as outfile:
         json.dump(data,outfile)
+
+def archive_json(filename: str = "f2_calendar.json", archive_filename: str = None) -> None:
+    """Archives the given json and creates a new blank json with the same name."""
+    if archive_filename is None:
+        year = date.today().year - 1
+        folder = "Archive"
+        temp = filename.replace(".json","")
+        archive_filename = f"{folder}/archived_{temp}_{year}.json"
+    os.rename(filename,archive_filename)
+
+    # create new file
+    with open(filename,"w") as new_file:
+        json.dump({},new_file)
 
 def extract_json_calendar(json_file: str = "f2_calendar.json") -> dict[str, list[Union[str, list[str]]]]:
     """Extracts the calendar data from the json file."""

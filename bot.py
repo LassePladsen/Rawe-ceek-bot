@@ -89,6 +89,10 @@ async def execute_week_embed():
     If so then update and edit the embed, if not then send a new embed."""
     today = date.today()
 
+    # Check if new year, archive f2 calendar json
+    if "01-01" in str(today):
+        f2.archive_json()
+
     message = await get_last_bot_message()
     prev_date = message.created_at.date()
 
