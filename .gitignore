@@ -3,3 +3,5 @@ discord_data.json
 *.idea
 __pycache__
 *.pyc
+test_f2_calendar.json
+Archive/archived_test_f2_calendar.json
