@@ -1,12 +1,12 @@
 from asyncio import sleep
+from datetime import date, datetime
 
 import discord
 from discord.ext import commands
-from datetime import date,datetime
 
-import util
 import formula1 as f1
 import formula2 as f2
+import util
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&",intents=intents,case_insensitive=True)
@@ -91,7 +91,7 @@ async def execute_week_embed():
 
     # Check if new year, archive f2 calendar json
     if "01-01" in str(today):
-        util.archive_json("f2_calendar.json")
+        util.archive_json("Data/f2_calendar.json")
 
     message = await get_last_bot_message()
     prev_date = message.created_at.date()

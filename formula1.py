@@ -1,7 +1,8 @@
-import numpy as np
-import fastf1       # f1 api
-from datetime import date,datetime
 import calendar
+from datetime import date, datetime
+
+import fastf1  # f1 api
+import numpy as np
 
 import util
 

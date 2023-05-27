@@ -1,7 +1,8 @@
-import requests
 import json
-from bs4 import BeautifulSoup
 from typing import Union
+
+import requests
+from bs4 import BeautifulSoup
 
 import util
 
@@ -67,7 +68,7 @@ def scrape_calendar() -> F2_calendar_type:
         return f2_events
 
 def store_calendar_to_json(calendar: F2_calendar_type,
-                           json_file: str = "f2_calendar.json") -> None:
+                           json_file: str = "Data/f2_calendar.json") -> None:
     """Saves f2 calendar data taken from scrape_calendar() and saves it to json, but only if there is new information.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
     """

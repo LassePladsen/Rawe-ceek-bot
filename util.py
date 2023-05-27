@@ -1,17 +1,18 @@
-from datetime import date,datetime
 import calendar
-import fastf1
-import pytz
 import json
 import os
+from datetime import date, datetime
 from typing import Union
 
-import formula2 as f2
+import fastf1
+import pytz
+
 import formula1 as f1
+import formula2 as f2
 
 F2_calendar_type = dict[str, list[Union[str, list[str]]]]
 
-def get_discord_data(key: str, file: str = "discord_data.json") -> str:
+def get_discord_data(key: str, file: str = "Data/discord_data.json") -> str:
     """Extracts value from given datakey from a given .json filename """
     with open(file, "r") as infile:
         data = json.load(infile)
@@ -411,9 +412,8 @@ def check_file_exists(filename):
         return False
 
 
-def get_default_archive_filename(filename: str) -> str:
+def get_default_archive_filename(filename: str, folder: str = "Archived_data") -> str:
     year = date.today().year - 1
-    folder = "Archive"
     temp = filename.replace(".json", "")
     return f"{folder}/archived_{temp}_{year}.json"
 
@@ -450,7 +450,7 @@ def update_existing_json(json_dict: dict, filename: str) -> None:
     with open(filename, "w") as outfile:
         json.dump(data, outfile,indent=3)
 
-def extract_json_data(json_file: str = "f2_calendar.json") -> F2_calendar_type:
+def extract_json_data(json_file: str = "Data/f2_calendar.json") -> F2_calendar_type:
     """Extracts data from the given json file."""
     with open(json_file, "r") as infile:
         return json.load(infile)
