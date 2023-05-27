@@ -5,7 +5,9 @@ from typing import Union
 
 import util
 
-def scrape_calendar() -> dict[str, list[Union[str, list[str]]]]:
+F2_calendar_type = dict[str, list[Union[str, list[str]]]]
+
+def scrape_calendar() -> F2_calendar_type:
     """
     Scrapes the F2 schedule from the F2 ebsite. Returns a dictionary mapping
     the sunday dates to the event infos.
@@ -64,7 +66,7 @@ def scrape_calendar() -> dict[str, list[Union[str, list[str]]]]:
             continue
         return f2_events
 
-def store_calendar_to_json(calendar: dict[str, list[Union[str, list[str]]]],
+def store_calendar_to_json(calendar: F2_calendar_type,
                            json_file: str = "f2_calendar.json") -> None:
     """Saves f2 calendar data taken from scrape_calendar() and saves it to json, but only if there is new information.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
@@ -77,7 +79,7 @@ def store_calendar_to_json(calendar: dict[str, list[Union[str, list[str]]]],
     util.update_existing_json(calendar,json_file)
 
 
-def extract_days(event:"fastf1.events.Event", f2_calendar) -> Union[dict,dict[str,list[list[str]]]]:
+def extract_days(event:"fastf1.events.Event", f2_calendar: F2_calendar_type) -> Union[dict,dict[str,list[list[str]]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
 
@@ -94,9 +96,9 @@ def extract_days(event:"fastf1.events.Event", f2_calendar) -> Union[dict,dict[st
             }
     """
     event_date = util.get_event_date_str(event)
-    event_Date = util.get_event_date_object(event)
+    event_date_obj = util.get_event_date_object(event)
 
-    if check_race_week(event_Date, f2_calendar):
+    if check_race_week(event_date_obj, f2_calendar):
         f2_event = f2_calendar[event_date][4]
 
         session_days = {}
@@ -115,7 +117,7 @@ def extract_days(event:"fastf1.events.Event", f2_calendar) -> Union[dict,dict[st
     else:
         return {}
 
-def check_race_week(date_:"datetime.date", f2_calendar):
+def check_race_week(date_:"datetime.date", f2_calendar: F2_calendar_type):
     """Boolean return for if the given date (datetime.date object) is a f2 race week."""
     sunday = util.get_sunday_date_str(date_)
     if util.format_date(str(sunday)) in list(f2_calendar.keys()):

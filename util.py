@@ -9,6 +9,7 @@ from typing import Union
 import formula2 as f2
 import formula1 as f1
 
+F2_calendar_type = dict[str, list[Union[str, list[str]]]]
 
 def get_discord_data(key: str, file: str = "discord_data.json") -> str:
     """Extracts value from given datakey from a given .json filename """
@@ -111,9 +112,9 @@ def make_date_object(date_: str) -> "datetime.date":
     the latter case the year will be the current year.."""
 
     if "-" in date_:
-        year,monthi,day = date_.split("-")
+        year, monthi,day = date_.split("-")
     else:
-        year = date_.today().year
+        year = date.today().year
         day,month = date_.split(" ")
         monthi = month_name_to_index(month)
     return date(int(year), int(monthi), int(day))
@@ -386,7 +387,7 @@ def get_all_week_info(date_: "datetime.date", weeks_left=True, language="norwegi
     event = f1.get_week_event(date_)
 
     f1_days = f1.sort_sessions_by_day(event)
-    f2_calendar = f2.extract_json_data()
+    f2_calendar = extract_json_data()
     f2_days = f2.extract_days(event, f2_calendar)
 
     eventtitle = f1.print_event_info(event)
@@ -449,7 +450,7 @@ def update_existing_json(json_dict: dict, filename: str) -> None:
     with open(filename, "w") as outfile:
         json.dump(data, outfile,indent=3)
 
-def extract_json_data(json_file: str = "f2_calendar.json") -> dict[str, list[Union[str, list[str]]]]:
+def extract_json_data(json_file: str = "f2_calendar.json") -> F2_calendar_type:
     """Extracts data from the given json file."""
     with open(json_file, "r") as infile:
         return json.load(infile)
