@@ -7,14 +7,14 @@ import util
 
 fastf1.set_log_level('ERROR')  # lower log level to remove "default cache enabled" warning
 
-TODAY = date.today()
-Race_schedule = fastf1.get_event_schedule(TODAY.year, include_testing=False)
-
 def get_week_event(date_:"datetime.date"):
     """Returns the fastf1 event object for the week of the given date.
     Returns None if there is no event in that week.
     Input date must be a datetime.date object."""
     sunday_date = util.get_sunday_date_str(date_)
+
+    TODAY = date.today()
+    Race_schedule = fastf1.get_event_schedule(TODAY.year, include_testing=False)
 
     race_dates = np.asarray(Race_schedule["EventDate"].to_string(index=False).split())
     if sunday_date in race_dates:

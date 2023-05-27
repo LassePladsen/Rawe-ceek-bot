@@ -91,7 +91,7 @@ async def execute_week_embed():
 
     # Check if new year, archive f2 calendar json
     if "01-01" in str(today):
-        f2.archive_json()
+        util.archive_json("f2_calendar.json")
 
     message = await get_last_bot_message()
     prev_date = message.created_at.date()

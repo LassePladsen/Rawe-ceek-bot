@@ -3,9 +3,12 @@ import calendar
 import fastf1
 import pytz
 import json
+import os
+from typing import Union
 
 import formula2 as f2
 import formula1 as f1
+
 
 def get_discord_data(key: str, file: str = "discord_data.json") -> str:
     """Extracts value from given datakey from a given .json filename """
@@ -383,7 +386,7 @@ def get_all_week_info(date_: "datetime.date", weeks_left=True, language="norwegi
     event = f1.get_week_event(date_)
 
     f1_days = f1.sort_sessions_by_day(event)
-    f2_calendar = f2.extract_json_calendar()
+    f2_calendar = f2.extract_json_data()
     f2_days = f2.extract_days(event, f2_calendar)
 
     eventtitle = f1.print_event_info(event)
@@ -396,3 +399,57 @@ def get_all_week_info(date_: "datetime.date", weeks_left=True, language="norwegi
             pass    # add other language(s) for 'remaining eventts' here
 
     return eventtitle,eventinfo
+
+
+def check_file_exists(filename):
+    try:
+        with open(filename, "r") as infile:
+            pass
+        return True
+    except FileNotFoundError:
+        return False
+
+
+def get_default_archive_filename(filename: str) -> str:
+    year = date.today().year - 1
+    folder = "Archive"
+    temp = filename.replace(".json", "")
+    return f"{folder}/archived_{temp}_{year}.json"
+
+
+def archive_json(filename: str, archive_filename: str = None) -> None:
+    """Archives the given json and creates a new blank json with the same name. If the archived file
+    already exist, update it instead of creating a new one."""
+    if archive_filename is None:
+        archive_filename = get_default_archive_filename(filename)
+
+    if check_file_exists(archive_filename):  # if archive already exists update it
+        with open(filename, "r") as infile:
+            data = json.load(infile)
+            update_existing_json(data, archive_filename)
+
+    else:
+        os.rename(filename, archive_filename)
+
+        # Create new blank file
+    with open(filename, "w") as new_file:
+        json.dump({}, new_file,indent=3)
+
+
+def update_existing_json(json_dict: dict, filename: str) -> None:
+    """Updates an existing json file with new keys-value pairs, if they exist."""
+    if not check_file_exists(filename):
+        return
+    with open(filename, "r") as infile:
+        data = json.load(infile)
+        for key in json_dict:
+            if key in data:  # dont overwrite if date already is in the json
+                continue
+            data[key] = json_dict[key]
+    with open(filename, "w") as outfile:
+        json.dump(data, outfile,indent=3)
+
+def extract_json_data(json_file: str = "f2_calendar.json") -> dict[str, list[Union[str, list[str]]]]:
+    """Extracts data from the given json file."""
+    with open(json_file, "r") as infile:
+        return json.load(infile)

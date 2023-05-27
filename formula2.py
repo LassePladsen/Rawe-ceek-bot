@@ -2,8 +2,6 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from typing import Union
-import os
-from datetime import date
 
 import util
 
@@ -71,34 +69,15 @@ def store_calendar_to_json(calendar: dict[str, list[Union[str, list[str]]]],
     """Saves f2 calendar data taken from scrape_calendar() and saves it to json, but only if there is new information.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
     """
-    with open(json_file, "r") as infile:
-        data = json.load(infile)
-        for key in calendar:
-            if key in data:  # dont overwrite if date already is in the json
-                return
-            data[key] = calendar[key]
-    with open(json_file, "w") as outfile:
-        json.dump(data,outfile)
+    if not util.check_file_exists(json_file):
+        with open(json_file,"w") as outfile:
+            json.dump(calendar,outfile,indent=3)
+        return
 
-def archive_json(filename: str = "f2_calendar.json", archive_filename: str = None) -> None:
-    """Archives the given json and creates a new blank json with the same name."""
-    if archive_filename is None:
-        year = date.today().year - 1
-        folder = "Archive"
-        temp = filename.replace(".json","")
-        archive_filename = f"{folder}/archived_{temp}_{year}.json"
-    os.rename(filename,archive_filename)
+    util.update_existing_json(calendar,json_file)
 
-    # create new file
-    with open(filename,"w") as new_file:
-        json.dump({},new_file)
 
-def extract_json_calendar(json_file: str = "f2_calendar.json") -> dict[str, list[Union[str, list[str]]]]:
-    """Extracts the calendar data from the json file."""
-    with open(json_file, "r") as infile:
-        return json.load(infile)
-
-def extract_days(event:"fastf1.events.Event", f2_calendar) -> dict[str,list[list[str]]]:
+def extract_days(event:"fastf1.events.Event", f2_calendar) -> Union[dict,dict[str,list[list[str]]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
 
@@ -134,7 +113,7 @@ def extract_days(event:"fastf1.events.Event", f2_calendar) -> dict[str,list[list
                 session_days[dayname].append(day)
         return session_days
     else:
-        return []
+        return {}
 
 def check_race_week(date_:"datetime.date", f2_calendar):
     """Boolean return for if the given date (datetime.date object) is a f2 race week."""
