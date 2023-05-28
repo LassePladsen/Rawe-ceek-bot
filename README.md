@@ -13,5 +13,3 @@ The bot needs multiple string values given in a json default 'discord_data.json'
 
 
 Run bot.py to start the bot loop.
- 
-
