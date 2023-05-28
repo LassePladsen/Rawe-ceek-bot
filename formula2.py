@@ -4,11 +4,13 @@ from typing import Union
 import requests
 from bs4 import BeautifulSoup
 
-import util
+from util import (get_oslo_time, check_file_exists, update_existing_json, get_event_date_object,
+                  get_sunday_date_str, format_date)
 
-F2_calendar_type = dict[str, list[Union[str, list[str]]]]
+F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
-def scrape_calendar() -> F2_calendar_type:
+
+def scrape_calendar() -> F2CalendarType:
     """
     Scrapes the F2 schedule from the F2 ebsite. Returns a dictionary mapping
     the sunday dates to the event infos.
@@ -24,7 +26,7 @@ def scrape_calendar() -> F2_calendar_type:
 
         try:
             country = soup.find("div", {"class": "country-circuit-name"}).text
-            if "-" in country: # If circuit name is more than the country like 'Italy-Emilia Romagna'
+            if "-" in country:  # If circuit name is more than the country like 'Italy-Emilia Romagna'
                 country = country.split("-")[0]
 
             circuit = soup.find("div", {"class": "country-circuit"}).text
@@ -45,14 +47,14 @@ def scrape_calendar() -> F2_calendar_type:
                         time = race[2]
                         if time != "TBC":
                             start, stop = time.split("-")
-                            start = util.get_oslo_time(start, country)
-                            stop = util.get_oslo_time(stop, country)
+                            start = get_oslo_time(start, country)
+                            stop = get_oslo_time(stop, country)
                             race[2] = f"{start}-{stop}"
 
                 # Format times, add zero to beginning or end so the times are formatted as: "15:55-16:25"
                 for j in range(len(race)):
                     jrace = race[j]
-                    if not ":" in jrace:
+                    if ":" not in jrace:
                         continue
                     if len(jrace) != 11:
                         if jrace[-2] == ":":  # missing trailing zero
@@ -67,20 +69,22 @@ def scrape_calendar() -> F2_calendar_type:
             continue
         return f2_events
 
-def store_calendar_to_json(calendar: F2_calendar_type,
-                           json_file: str = "Data/f2_calendar.json") -> None:
+
+def store_calendar_to_json(calendar: F2CalendarType,
+                           json_file: str = "data/f2_calendar.json") -> None:
     """Saves f2 calendar data taken from scrape_calendar() and saves it to json, but only if there is new information.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
     """
-    if not util.check_file_exists(json_file):
-        with open(json_file,"w") as outfile:
-            json.dump(calendar,outfile,indent=3)
+    if not check_file_exists(json_file):
+        with open(json_file, "w") as outfile:
+            json.dump(calendar, outfile, indent=3)
         return
 
-    util.update_existing_json(calendar,json_file)
+    update_existing_json(calendar, json_file)
 
 
-def extract_days(event:"fastf1.events.Event", f2_calendar: F2_calendar_type) -> Union[dict,dict[str,list[list[str]]]]:
+def extract_days(date_: str, f2_calendar: F2CalendarType) -> Union[
+                dict, dict[str, list[list[str]]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
 
@@ -96,11 +100,9 @@ def extract_days(event:"fastf1.events.Event", f2_calendar: F2_calendar_type) -> 
             'Sunday': [['Feature Race', 'TBC']]}
             }
     """
-    event_date = util.get_event_date_str(event)
-    event_date_obj = util.get_event_date_object(event)
 
-    if check_race_week(event_date_obj, f2_calendar):
-        f2_event = f2_calendar[event_date][4]
+    if check_f2_race_week(date_, f2_calendar):
+        f2_event = f2_calendar[format_date(date_)][4]
 
         session_days = {}
         for day in f2_event:
@@ -118,10 +120,10 @@ def extract_days(event:"fastf1.events.Event", f2_calendar: F2_calendar_type) -> 
     else:
         return {}
 
-def check_race_week(date_:"datetime.date", f2_calendar: F2_calendar_type):
+
+def check_f2_race_week(date_: str, f2_calendar: F2CalendarType):
     """Boolean return for if the given date (datetime.date object) is a f2 race week."""
-    sunday = util.get_sunday_date_str(date_)
-    if util.format_date(str(sunday)) in list(f2_calendar.keys()):
+    if format_date(str(date_)) in list(f2_calendar.keys()):
         return True
     else:
         return False

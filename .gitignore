@@ -2,6 +2,6 @@ testing.py
 *.idea
 __pycache__
 *.pyc
-Data/discord_data.json
-Data/test_f2_calendar.json
-Archived_data/archived_test_f2_calendar_2022.json
+data/discord_data.json
+data/test_f2_calendar.json
+archived_data/archived_test_f2_calendar_2022.json
