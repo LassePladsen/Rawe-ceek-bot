@@ -165,5 +165,5 @@ async def on_ready():
     bot.loop.create_task(status(loop_hours=10))  # start the loop
     print("PIERRRE GASLYYYY!")
 
-
-bot.run(util.get_discord_data("bot_token"))
+if __name__ == "__main__":
+    bot.run(util.get_discord_data("bot_token"))
