@@ -1,0 +1,11 @@
+{
+  "bot_token": "",
+  "bot_id": "",
+  "channel_id": "",
+  "bot_channel_id": "",
+  "test_channel_id": "",
+  "race_week_image": "data/race_week_image.png",
+  "no_race_week_image": "data/no_race_week_image.png",
+  "race_week_emoji": "",
+  "no_race_week_emoji": ""
+}
