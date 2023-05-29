@@ -15,14 +15,14 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 CHANNEL_ID = int(util.get_discord_data("channel_id"))
 
 
-async def get_rawe_ceek_embed(date_: datetime.date):
+async def get_race_week_embed(date_: datetime.date):
     title, des = f1.get_all_week_info(date_)  # title and description for the embed message
     embed = discord.Embed(title=title, description=des)
     embed.set_image(url="attachment://race.png")
     return embed
 
 
-async def get_no_rawe_ceek_embed(date_: datetime.date):
+async def get_no_race_week_embed(date_: datetime.date):
     week_count = f1.until_next_race_week(date_)
     if week_count == 1:
         title = str(week_count) + " uke til neste rawe ceek..."  # title for embed message
@@ -35,7 +35,7 @@ async def get_no_rawe_ceek_embed(date_: datetime.date):
                                                                               caps=False)
     des = "Neste race er " + no_date  # description for embed message
     embed = discord.Embed(title=title, description=des)
-    embed.set_image(url="attachment://sad.png")
+    embed.set_image(url="attachment://norace.png")
     return embed
 
 
@@ -52,32 +52,43 @@ async def update_status_message():
         await bot.change_presence(status=discord.Status.online, activity=activity)
 
 
-async def send_week_embed(date_: datetime.date, emoji_rawe_ceek=None, emoji_no_rawe_ceek=None):
+async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_race_week=None) -> discord.Message:
     """Sends timing embed and returns discord.Message object for later editing"""
     # If its race week post the times, if not then post no. of weeks until next race week
-    if f1.check_f1_race_week(str(date_)):
-        rawe_ceek_image = util.get_discord_data("race_week_image")
-        file = discord.File(rawe_ceek_image, filename="race.png")
-        embed = await get_rawe_ceek_embed(date_)
+    if f1.check_f1_race_week(date_):
+        race_week_image = util.get_discord_data("race_week_image")
+        file = discord.File(race_week_image, filename="race.png")
+        embed = await get_race_week_embed(date_)
 
         message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
-        if emoji_rawe_ceek:
-            await message.add_reaction(emoji_rawe_ceek)
+        if emoji_race_week is not None:
+            await message.add_reaction(emoji_race_week)
 
     else:  # if not race week then post no. weeks until n# ext race week
         # Count how many weeks until next race week
-        embed = await get_no_rawe_ceek_embed(date_)
-        no_rawe_ceek_image = util.get_discord_data("no_rawe_ceek_image")
-        file = discord.File(no_rawe_ceek_image, filename="sad.png")
+        embed = await get_no_race_week_embed(date_)
+        no_race_week_image = util.get_discord_data("no_race_week_image")
+        file = discord.File(no_race_week_image, filename="norace.png")
 
         message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
-        if emoji_no_rawe_ceek:
-            await message.add_reaction(emoji_no_rawe_ceek)
+        if emoji_no_race_week is not None:
+            await message.add_reaction(emoji_no_race_week)
 
     return message
 
 
-async def get_last_bot_message(max_messages=15):
+async def edit_week_embed(date_: datetime.date) -> discord.Message:
+    """Edits timing embed and returns discord.Message object for later editing"""
+    message = await get_last_bot_message()
+    if f1.check_f1_race_week(date_):
+        new_embed = await get_race_week_embed(date_)
+    else:
+        new_embed = await get_no_race_week_embed(date_)
+    await message.edit(embed=new_embed)
+    return message
+
+
+async def get_last_bot_message(max_messages=15) -> discord.Message:
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
     bot_id = util.get_discord_data("bot_id")  # the bots user id to check the previous messages
@@ -89,7 +100,7 @@ async def get_last_bot_message(max_messages=15):
         return prev_msgs[index]
 
 
-async def execute_week_embed():
+async def execute_week_embed() -> None:
     """Checks if the bot has sent an embed the week of the given date.
     If so then update and edit the embed, if not then send a new embed."""
     today = date.today()
@@ -103,25 +114,14 @@ async def execute_week_embed():
 
     # If it has posted this week and its a race week: only edit the embed to update f2 times
     posted_cond = util.get_sunday_date_str(today) == util.get_sunday_date_str(prev_date)  # is same week as prev post?
-    if f1.check_f1_race_week(str(today)):
-        if posted_cond:  # same week then edit the embed
-            new_embed = await get_rawe_ceek_embed(today)
-            await message.edit(embed=new_embed)
-            return
+    if posted_cond:  # same week then edit the embed
+        await edit_week_embed(today)
 
-        # if not same week: post new embed and save date
-        elif not posted_cond:
-            rawe_ceek_emoji = util.get_discord_data("race_week_emoji")
-            no_rawe_ceek_emoji = util.get_discord_data("no_race_week_emoji")
-            await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
-            return
-
-    else:  # not race week, only needs to update next week, so post new embed if there is none this week
-        if not posted_cond:  # post new embed and save date
-            rawe_ceek_emoji = util.get_discord_data("race_week_emoji")
-            no_rawe_ceek_emoji = util.get_discord_data("no_race_week_emoji")
-            await send_week_embed(today, rawe_ceek_emoji, no_rawe_ceek_emoji)
-            return
+    # if not same week: post new embed and save date
+    else:
+        race_week_emoji = util.get_discord_data("race_week_emoji")
+        no_race_week_emoji = util.get_discord_data("no_race_week_emoji")
+        await send_week_embed(today, race_week_emoji, no_race_week_emoji)
 
 
 async def status(loop_hours):
@@ -129,8 +129,7 @@ async def status(loop_hours):
     while True:
         f2.store_calendar_to_json(f2.scrape_calendar())  # update the f2 calendar json
 
-        # Check if it has sent this week: edits the weeks embed, or if not sends a new embed.
-        await execute_week_embed()  # also updates the previous date if it sent a new one
+        await execute_week_embed()
 
         # Lastly update the status message
         await update_status_message()

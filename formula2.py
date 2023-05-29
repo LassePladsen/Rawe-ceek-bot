@@ -4,8 +4,8 @@ from typing import Union
 import requests
 from bs4 import BeautifulSoup
 
-from util import (get_oslo_time, check_file_exists, update_existing_json, get_event_date_object,
-                  get_sunday_date_str, format_date)
+from util import (get_oslo_time, check_file_exists, update_existing_json, format_date, extract_json_data,
+                  get_sunday_date_str, get_event_date_str)
 
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
@@ -83,7 +83,7 @@ def store_calendar_to_json(calendar: F2CalendarType,
     update_existing_json(calendar, json_file)
 
 
-def extract_days(date_: str, f2_calendar: F2CalendarType) -> Union[
+def extract_days(event: "fastf1.events.Event", f2_calendar: F2CalendarType) -> Union[
                 dict, dict[str, list[list[str]]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
@@ -100,30 +100,32 @@ def extract_days(date_: str, f2_calendar: F2CalendarType) -> Union[
             'Sunday': [['Feature Race', 'TBC']]}
             }
     """
+    event_date = get_event_date_str(event)
+    f2_event = f2_calendar[event_date][4]
+    session_days = {}
+    for day in f2_event:
+        try:
+            dayname = day.pop(1)
+        except IndexError:
+            continue
 
-    if check_f2_race_week(date_, f2_calendar):
-        f2_event = f2_calendar[format_date(date_)][4]
-
-        session_days = {}
-        for day in f2_event:
-            try:
-                dayname = day.pop(1)
-            except IndexError:
-                continue
-
-            # Initialize list in the dictionary for seperate each day if it hasnt already
-            if dayname not in list(session_days.keys()):
-                session_days[dayname] = [day]
-            else:
-                session_days[dayname].append(day)
-        return session_days
-    else:
-        return {}
+        # Initialize list in the dictionary for seperate each day if it hasnt already
+        if dayname not in list(session_days.keys()):
+            session_days[dayname] = [day]
+        else:
+            session_days[dayname].append(day)
+    return session_days
 
 
-def check_f2_race_week(date_: str, f2_calendar: F2CalendarType):
-    """Boolean return for if the given date (datetime.date object) is a f2 race week."""
-    if format_date(str(date_)) in list(f2_calendar.keys()):
+
+def check_f2_race_week(date_: Union[str, "datetime.date"]):
+    """Boolean return for if the given date is a f2 race week."""
+    if not isinstance(date_, str):
+        date_ = str(date_)
+    sunday = get_sunday_date_str(date_)
+    f2_calendar = extract_json_data()
+    if format_date(sunday) in list(f2_calendar.keys()):
         return True
     else:
         return False
+

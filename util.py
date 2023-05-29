@@ -29,9 +29,8 @@ def day_string_formatting(day):
 
 def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
     """Returns a string with sundays date of the same week as the given date formatted '2023-05-07'"""
-
-    if isinstance(date_,str):
-        date_ = make_date_object(date_)
+    if isinstance(date_, str):
+        date_ = get_date_object(date_)
     weekday = date.weekday(date_)  # the weekday number of the week beginning at 0 (monday)
     days_until_sunday = 6 - weekday
 
@@ -55,8 +54,8 @@ def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
 
 def get_sunday_date_object(date_: Union[str, datetime.date]) -> datetime.date:
     if isinstance(date_, str):
-        return make_date_object(date_)
-    return make_date_object(get_sunday_date_str(date_))
+        return get_date_object(date_)
+    return get_date_object(get_sunday_date_str(date_))
 
 
 def month_index_to_name(monthindex: int, language: str = "English"):
@@ -117,7 +116,7 @@ def format_date(date_: str) -> str:
     return day + " " + month
 
 
-def make_date_object(date_: str) -> datetime.date:
+def get_date_object(date_: str) -> datetime.date:
     """Creates a datatime.date object from given date string.
     String can either be in the 'yyyy-mm-dd' format or 'dd Month' (with month names) format, in
     the latter case the year will be the current year.."""
@@ -155,7 +154,7 @@ def get_event_date_object(event: Union[str, fastf1.events.Event]) -> datetime.da
     """Get the sunday event date as datetime.date object."""
     if not isinstance(event, str):
         string = str(event["EventDate"]).split(" ")[0]
-    date_ = get_sunday_date_object(make_date_object(string))
+    date_ = get_sunday_date_object(get_date_object(string))
     return date_
 
 

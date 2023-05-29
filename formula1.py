@@ -6,7 +6,7 @@ import fastf1  # f1 api
 import numpy as np
 
 import util
-from formula2 import extract_days, check_f2_race_week
+from formula2 import extract_days
 
 fastf1.set_log_level('ERROR')  # lower log level to remove "default cache enabled" warning
 
@@ -15,6 +15,8 @@ def get_week_event(date_: Union[str, datetime.date]):
     """Returns the fastf1 event object for the week of the given date.
     Returns None if there is no event in that week.
     Input date must be a datetime.date object."""
+    if isinstance(date_, str):
+        date_ = util.get_date_object(date_)
     sunday_date = util.get_sunday_date_str(date_)
 
     today = date.today()
@@ -51,12 +53,12 @@ def get_next_week_event(date_: datetime.date):
             sunday = sunday[:-2] + new_day  # roll to new day number
 
             sunday = sunday.replace(str(date_.month), str(date_.month + 1))
-    return get_week_event(util.make_date_object(sunday))
+    return get_week_event(util.get_date_object(sunday))
 
 
 def get_remaining_dates(date_: Union[str, datetime.date]):
     if isinstance(date_, str):
-        date_ = util.make_date_object(date_)
+        date_ = util.get_date_object(date_)
     dt = datetime.combine(date_, datetime.min.time())
     remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
     dates = str(remaining_schedule["EventDate"]).split("\n")  # get list of column strings
@@ -64,20 +66,14 @@ def get_remaining_dates(date_: Union[str, datetime.date]):
     return dates
 
 
-def check_f1_race_week(date_: Union[str, datetime.date], old_implementation=False):
+def check_f1_race_week(date_: Union[str, datetime.date]):
     """Boolean return for if the given date is a f1 race week."""
     if not isinstance(date_, str):
         date_ = str(date_)
 
-    if old_implementation:
-        if get_week_event(date_) is not None:
-            return True
-        else:
-            return False
-    else:
-        sunday = util.get_sunday_date_object(date_)
-        dates = get_remaining_dates(date_)
-        return str(sunday) in dates
+    sunday = util.get_sunday_date_str(date_)
+    remaining_dates = get_remaining_dates(date_)
+    return sunday in remaining_dates
 
 
 def check_sprint_session(event: fastf1.events.Event):
@@ -164,28 +160,29 @@ def until_next_race_week(date_: datetime.date):
     return counter
 
 
-def get_all_week_info(date_: datetime.date, weeks_left=True, language="norwegian"):
-    """Returns two strings containing print title and print text
-    for sending in discord."""
-    event = get_week_event(date_)
+def get_all_week_info(date_: Union[str, datetime.date], weeks_left=True, language="norwegian"):
+    """Returns two strings containing print title and print text for sending in discord."""
+    if isinstance(date_, str):
+        date_ = util.get_date_object(date_)
 
+    event = get_week_event(date_)
     f1_days = sort_sessions_by_day(event)
     f2_calendar = util.extract_json_data()
-    f2_days = extract_days(str(date_), f2_calendar)
+    f2_days = extract_days(event, f2_calendar)
 
     eventtitle = print_event_info(event)
-    eventinfo = print_all_days(event, f2_calendar, f2_days, f1_days)
+    eventinfo = print_all_days(event, f2_days, f1_days)
 
     if weeks_left:  # Print remaining race weeks in the season
         if language.lower() == "norwegian":
             eventinfo += "-Races igjen: " + str(util.get_remaining_events(date_))
         else:
-            pass  # add other language(s) for 'remaining eventts' here
+            pass  # add other language(s) for 'remaining events' here
 
     return eventtitle, eventinfo
 
 
-def print_day_sessions(event: fastf1.events.Event, day, f2_calendar, f2_event,
+def print_day_sessions(event: fastf1.events.Event, day, f2_event,
                        f1_event, time_sort=True, discord_day_format="__"):
     """Prints category and time for all F1 and F2 sessions from given list containing all sessions for that day.
     If 'time_sort' defaults to true and will sort the print by time instead of as F2 sessions -> F1 sessions
@@ -193,7 +190,6 @@ def print_day_sessions(event: fastf1.events.Event, day, f2_calendar, f2_event,
     Parameters:
         event: fastf1.Event object
         day: string specifying which day of the Event to print
-        f2_calendar: dictionary with f2 events from f2.scrape_calendar().
         f2_event: dictionary mapping days with list containing all f2 sessions names and times for each day.
         f1_event: dictionary mapping days with list containing all f1 fastf1.Session objects for each day.
                      for the corresponding days.
@@ -211,7 +207,7 @@ def print_day_sessions(event: fastf1.events.Event, day, f2_calendar, f2_event,
 
     date_ = util.get_event_date_object(event)
 
-    if f2.check_f2_race_week(str(date_), f2_calendar):
+    if f2.check_f2_race_week(str(date_)):
         f2_day = f2_event.get(day)
     else:
         f2_day = None
@@ -306,7 +302,7 @@ def print_day_sessions(event: fastf1.events.Event, day, f2_calendar, f2_event,
     return output
 
 
-def print_all_days(event: fastf1.events.Event, f2_calendar, f2_days, f1_days):
+def print_all_days(event: fastf1.events.Event, f2_days, f1_days):
     output = ""
 
     thursday_title = "Torsdag"
@@ -314,10 +310,10 @@ def print_all_days(event: fastf1.events.Event, f2_calendar, f2_days, f1_days):
     saturday_title = "Lørdag"
     sunday_title = "Søndag"
 
-    thursday = print_day_sessions(event, thursday_title, f2_calendar, f2_days, f1_days)
-    friday = print_day_sessions(event, friday_title, f2_calendar, f2_days, f1_days)
-    saturday = print_day_sessions(event, saturday_title, f2_calendar, f2_days, f1_days)
-    sunday = print_day_sessions(event, sunday_title, f2_calendar, f2_days, f1_days)
+    thursday = print_day_sessions(event, thursday_title, f2_days, f1_days)
+    friday = print_day_sessions(event, friday_title, f2_days, f1_days)
+    saturday = print_day_sessions(event, saturday_title, f2_days, f1_days)
+    sunday = print_day_sessions(event, sunday_title, f2_days, f1_days)
 
     for day in [thursday, friday, saturday, sunday]:
         if day is not None:
