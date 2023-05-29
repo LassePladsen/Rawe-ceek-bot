@@ -11,7 +11,7 @@ from formula2 import extract_days
 fastf1.set_log_level('ERROR')  # lower log level to remove "default cache enabled" warning
 
 
-def get_week_event(date_: Union[str, datetime.date]):
+def get_week_event(date_: Union[str, datetime.date]) -> Union[fastf1.events.Event, None]:
     """Returns the fastf1 event object for the week of the given date.
     Returns None if there is no event in that week.
     Input date must be a datetime.date object."""
@@ -31,8 +31,8 @@ def get_week_event(date_: Union[str, datetime.date]):
         return None
 
 
-def get_next_week_event(date_: datetime.date):
-    """Returns the next race week event from a given date"""
+def get_next_week_event(date_: datetime.date) -> fastf1.events.Event:
+    """Returns the next race week event from a given date."""
     dates = get_remaining_dates(date_)
     sunday = util.get_sunday_date_str(date_)
 
@@ -56,7 +56,8 @@ def get_next_week_event(date_: datetime.date):
     return get_week_event(util.get_date_object(sunday))
 
 
-def get_remaining_dates(date_: Union[str, datetime.date]):
+def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
+    """Returns a list of all the remaining dates of the f1 season."""
     if isinstance(date_, str):
         date_ = util.get_date_object(date_)
     dt = datetime.combine(date_, datetime.min.time())
@@ -66,7 +67,7 @@ def get_remaining_dates(date_: Union[str, datetime.date]):
     return dates
 
 
-def check_f1_race_week(date_: Union[str, datetime.date]):
+def check_f1_race_week(date_: Union[str, datetime.date]) -> bool:
     """Boolean return for if the given date is a f1 race week."""
     if not isinstance(date_, str):
         date_ = str(date_)
@@ -76,9 +77,8 @@ def check_f1_race_week(date_: Union[str, datetime.date]):
     return sunday in remaining_dates
 
 
-def check_sprint_session(event: fastf1.events.Event):
-    """Boolean check if a race event has a f1 sprint session.
-    Input event must be a fastf1.Event object."""
+def check_sprint_session(event: fastf1.events.Event) -> bool:
+    """Boolean check if a race event has a f1 sprint session"""
     try:
         event.get_sprint()
         return True
@@ -86,10 +86,9 @@ def check_sprint_session(event: fastf1.events.Event):
         return False
 
 
-def sort_sessions_by_day(event: fastf1.events.Event):
+def sort_sessions_by_day(event: fastf1.events.Event) -> dict[str, list[fastf1.core.Session]]:
     """Returns a dictionary mapping days to list containing all f1 fastf1.Session objects
      for the corresponding days"""
-    # Initialize the dictionary
     session_days = {"Friday": [], "Saturday": [], "Sunday": []}
 
     q_session = event.get_qualifying()
@@ -112,8 +111,8 @@ def sort_sessions_by_day(event: fastf1.events.Event):
     return session_days
 
 
-def print_event_info(event: fastf1.events.Event, upper_case=True, event_discord_format="**"):
-    """Prints name and date for given race event, must be fastf1.Event object.
+def get_event_info(event: fastf1.events.Event, upper_case=True, event_discord_format="**") -> str:
+    """Returns name and date for given race event.
     Supports discord formatting given as optional argument."""
     name = event["EventName"]
     if upper_case:
@@ -135,7 +134,7 @@ def print_event_info(event: fastf1.events.Event, upper_case=True, event_discord_
         return f"{name} {out_date}\n"
 
 
-def until_next_race_week(date_: datetime.date):
+def until_next_race_week(date_: datetime.date) -> int:
     """Returns integer of how many weeks until next race week from given date."""
     dates = get_remaining_dates(date_)
     sunday = util.get_sunday_date_str(date_)
@@ -160,8 +159,9 @@ def until_next_race_week(date_: datetime.date):
     return counter
 
 
-def get_all_week_info(date_: Union[str, datetime.date], weeks_left=True, language="norwegian"):
-    """Returns two strings containing print title and print text for sending in discord."""
+def get_all_week_info(date_: Union[str, datetime.date], weeks_left: bool = True,
+                      language: str = "norwegian") -> tuple[str, str]:
+    """Returns two strings containing title and description for sending in discord."""
     if isinstance(date_, str):
         date_ = util.get_date_object(date_)
 
@@ -170,31 +170,24 @@ def get_all_week_info(date_: Union[str, datetime.date], weeks_left=True, languag
     f2_calendar = util.extract_json_data()
     f2_days = extract_days(event, f2_calendar)
 
-    eventtitle = print_event_info(event)
-    eventinfo = print_all_days(event, f2_days, f1_days)
+    eventtitle = get_event_info(event)
+    print(f2_days,f1_days)
+    eventinfo = get_all_days(event, f2_days, f1_days)
 
     if weeks_left:  # Print remaining race weeks in the season
         if language.lower() == "norwegian":
-            eventinfo += "-Races igjen: " + str(util.get_remaining_events(date_))
+            eventinfo += "-Races igjen: " + str(util.get_number_remaining_events(date_))
         else:
             pass  # add other language(s) for 'remaining events' here
 
     return eventtitle, eventinfo
 
 
-def print_day_sessions(event: fastf1.events.Event, day, f2_event,
-                       f1_event, time_sort=True, discord_day_format="__"):
-    """Prints category and time for all F1 and F2 sessions from given list containing all sessions for that day.
-    If 'time_sort' defaults to true and will sort the print by time instead of as F2 sessions -> F1 sessions
-
-    Parameters:
-        event: fastf1.Event object
-        day: string specifying which day of the Event to print
-        f2_event: dictionary mapping days with list containing all f2 sessions names and times for each day.
-        f1_event: dictionary mapping days with list containing all f1 fastf1.Session objects for each day.
-                     for the corresponding days.
-        time_sort: boolean deciding whether to sort the print by time.
-        discord_day_format: string containing discord formatting for the day print.
+def get_day_sessions(event: fastf1.events.Event, day: str, f2_event: dict[str, list[list[str]]],
+                     f1_event: dict[str, list[fastf1.core.Session]], time_sort: bool = True,
+                     discord_day_format: str = "__"):
+    """Returns string containing category and time for all F1 and F2 sessions for a given day.
+    If 'time_sort' sort the print by time instead of as F2 sessions -> F1 sessions, defaults to true.
     """
     import formula2 as f2
 
@@ -302,7 +295,9 @@ def print_day_sessions(event: fastf1.events.Event, day, f2_event,
     return output
 
 
-def print_all_days(event: fastf1.events.Event, f2_days, f1_days):
+def get_all_days(event: fastf1.events.Event, f2_days: dict[str, list[list[str]]],
+                 f1_days: dict[str, list[fastf1.core.Session]]):
+    """Returns a string containing all sessions for each day for a given event."""
     output = ""
 
     thursday_title = "Torsdag"
@@ -310,10 +305,10 @@ def print_all_days(event: fastf1.events.Event, f2_days, f1_days):
     saturday_title = "Lørdag"
     sunday_title = "Søndag"
 
-    thursday = print_day_sessions(event, thursday_title, f2_days, f1_days)
-    friday = print_day_sessions(event, friday_title, f2_days, f1_days)
-    saturday = print_day_sessions(event, saturday_title, f2_days, f1_days)
-    sunday = print_day_sessions(event, sunday_title, f2_days, f1_days)
+    thursday = get_day_sessions(event, thursday_title, f2_days, f1_days)
+    friday = get_day_sessions(event, friday_title, f2_days, f1_days)
+    saturday = get_day_sessions(event, saturday_title, f2_days, f1_days)
+    sunday = get_day_sessions(event, sunday_title, f2_days, f1_days)
 
     for day in [thursday, friday, saturday, sunday]:
         if day is not None:

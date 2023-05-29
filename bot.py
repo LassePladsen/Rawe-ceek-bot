@@ -1,12 +1,13 @@
 from asyncio import sleep
 from datetime import date, datetime
+from typing import Union
 
 import discord
 from discord.ext import commands
 
 import formula1 as f1
 import formula2 as f2
-import util as util
+import util
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
@@ -15,14 +16,16 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 CHANNEL_ID = int(util.get_discord_data("channel_id"))
 
 
-async def get_race_week_embed(date_: datetime.date):
+async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
+    """Returns embed for a race week with a 'race week' image."""
     title, des = f1.get_all_week_info(date_)  # title and description for the embed message
     embed = discord.Embed(title=title, description=des)
     embed.set_image(url="attachment://race.png")
     return embed
 
 
-async def get_no_race_week_embed(date_: datetime.date):
+async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed:
+    """Returns embed for a non race week with a 'no race week' image."""
     week_count = f1.until_next_race_week(date_)
     if week_count == 1:
         title = str(week_count) + " uke til neste rawe ceek..."  # title for embed message
@@ -39,7 +42,8 @@ async def get_no_race_week_embed(date_: datetime.date):
     return embed
 
 
-async def update_status_message():
+async def update_status_message() -> None:
+    """Updates the bots status message with either a message depending on if its a race week or not."""
     today = date.today()
     if f1.check_f1_race_week(str(today)):
         # Set bot satus message to rawe ceek
@@ -52,8 +56,8 @@ async def update_status_message():
         await bot.change_presence(status=discord.Status.online, activity=activity)
 
 
-async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_race_week=None) -> discord.Message:
-    """Sends timing embed and returns discord.Message object for later editing"""
+async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_race_week=None):
+    """Sends an embed for the week, either embed for race week or non race week."""
     # If its race week post the times, if not then post no. of weeks until next race week
     if f1.check_f1_race_week(date_):
         race_week_image = util.get_discord_data("race_week_image")
@@ -74,21 +78,18 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         if emoji_no_race_week is not None:
             await message.add_reaction(emoji_no_race_week)
 
-    return message
 
-
-async def edit_week_embed(date_: datetime.date) -> discord.Message:
-    """Edits timing embed and returns discord.Message object for later editing"""
+async def edit_week_embed(date_: datetime.date):
+    """Edits an already sent weeks embed."""
     message = await get_last_bot_message()
     if f1.check_f1_race_week(date_):
         new_embed = await get_race_week_embed(date_)
     else:
         new_embed = await get_no_race_week_embed(date_)
     await message.edit(embed=new_embed)
-    return message
 
 
-async def get_last_bot_message(max_messages=15) -> discord.Message:
+async def get_last_bot_message(max_messages=15) -> Union[discord.Message, None]:
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
     bot_id = util.get_discord_data("bot_id")  # the bots user id to check the previous messages
@@ -124,7 +125,9 @@ async def execute_week_embed() -> None:
         await send_week_embed(today, race_week_emoji, no_race_week_emoji)
 
 
-async def status(loop_hours):
+async def status(loop_hours) -> None:
+    """The bot loops. Loops the execute_week_embed() and
+    update_status_message() functions after given amount of hours."""
     # Loops after given amount of hours
     while True:
         f2.store_calendar_to_json(f2.scrape_calendar())  # update the f2 calendar json
@@ -139,7 +142,7 @@ async def status(loop_hours):
 
 
 @bot.command(aliases=["upd"])
-async def update(ctx):
+async def update(ctx) -> None:
     """On recieving update command with the bots prefix, executes the weekly embed send/edit
     with todays updated info. Also updates the status message just incase.
     If the command was not in #bot channel, delete both the command message and the reply message."""
@@ -161,7 +164,8 @@ async def update(ctx):
 
 
 @bot.event
-async def on_ready():
+async def on_ready() -> None:
+    """On bot ready, start the status loop."""
     bot.loop.create_task(status(loop_hours=10))  # start the loop
     print("PIERRRE GASLYYYY!")
 

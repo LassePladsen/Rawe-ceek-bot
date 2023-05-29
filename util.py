@@ -11,13 +11,13 @@ F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
 
 def get_discord_data(key: str, file: str = "data/discord_data.json") -> str:
-    """Extracts value from given datakey from a given .json filename """
+    """Extracts string value from given datakey from a given .json filename """
     with open(file, "r") as infile:
         data = json.load(infile)
     return data[key]
 
 
-def day_string_formatting(day):
+def day_string_formatting(day: str) -> str:
     """Gives a string containing a day number formatted like '05' instead of '5' (example).
     Does nothing if the day number is over 10. Argument can be int or str."""
     day = int(day)
@@ -53,12 +53,13 @@ def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
 
 
 def get_sunday_date_object(date_: Union[str, datetime.date]) -> datetime.date:
+    """Returns a datetime.date object with sundays date of the same week as the given date."""
     if isinstance(date_, str):
         return get_date_object(date_)
     return get_date_object(get_sunday_date_str(date_))
 
 
-def month_index_to_name(monthindex: int, language: str = "English"):
+def month_index_to_name(monthindex: int, language: str = "English") -> str:
     """Converts a index to the corresponding month name. Defaults to English,
     but also supports Norwegian."""
     if language == "English":
@@ -74,15 +75,15 @@ def month_index_to_name(monthindex: int, language: str = "English"):
     return months[monthindex - 1]
 
 
-def month_name_to_index(monthname):
+def month_name_to_index(monthname: str) -> int:
     """Converts an english month name to the corresponding index."""
     months = ["January", "February", "March", "April", "May", "June", "July",
               "August", "September", "October", "November", "December"]
     return months.index(monthname)
 
 
-def month_to_norwegian(month, caps=True):
-    """Translates month name from English to norwegian names, defaults to using caps letters."""
+def month_to_norwegian(month: str, caps: bool = True) -> str:
+    """Translates month name from english to norwegian names, defaults to using caps letters."""
     if caps:
         no_months = ["JANUAR", "FEBRUAR", "MARS", "APRIL", "MAI", "JUNI", "JULI",
                      "AUGUST", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"]
@@ -94,14 +95,14 @@ def month_to_norwegian(month, caps=True):
     return no_months[en_months.index(month.lower())]
 
 
-def day_to_norwegian(day):
+def day_to_norwegian(day: str) -> str:
     """Translates day name from english to norwegian, no case-sensitive input."""
     no_days = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"]
     en_days = ["monday", "tuesay", "wednesday", "thursday", "friday", "saturday", "sunday"]
     return no_days[en_days.index(day.lower())]
 
 
-def day_to_english(day):
+def day_to_english(day: str) -> str:
     """Translates day name from norwegian to english, no case-sensitive input."""
     en_days = ["Monday", "Tuesay", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     no_days = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
@@ -120,7 +121,6 @@ def get_date_object(date_: str) -> datetime.date:
     """Creates a datatime.date object from given date string.
     String can either be in the 'yyyy-mm-dd' format or 'dd Month' (with month names) format, in
     the latter case the year will be the current year.."""
-
     if "-" in date_:
         year, monthi, day = date_.split("-")
     else:
@@ -130,8 +130,8 @@ def get_date_object(date_: str) -> datetime.date:
     return date(int(year), int(monthi), int(day))
 
 
-def timezone_to_oslo(time):
-    """Converts a time of panda.Timestamp object to norwegian timezone."""
+def timezone_to_oslo(time: "pandas.Timestamp") -> str:
+    """Converts a time of pandas.Timestamp object to norwegian timezone."""
     no_time = time.tz_localize("Europe/Oslo")
     out_time = str(no_time).split(" ")[1]
 
@@ -158,7 +158,8 @@ def get_event_date_object(event: Union[str, fastf1.events.Event]) -> datetime.da
     return date_
 
 
-def get_oslo_time(local_time, country):
+def get_oslo_time(local_time: str, country: str) -> str:
+    """Converts local time to Oslo time."""
     local_time = f"2023-01-01 {local_time}"
 
     # Map country to its timezone
@@ -180,7 +181,8 @@ def get_oslo_time(local_time, country):
     return f"{oslo_time.hour}:{oslo_time.minute}"
 
 
-def get_country_code(country_name):
+def get_country_code(country_name: str) -> Union[str, None]:
+    """Returns the ISO code for a given country name."""
     # Dictionary mapping country names to ISO codes
     country_codes = {'Argentina': 'AR',
                      'Austria': 'AT',
@@ -232,16 +234,15 @@ def get_country_code(country_name):
         return None
 
 
-def get_remaining_events(date_: datetime.date):
-    """Returns int of how many remaining f1 events there are from a given date.
-
-    """
+def get_number_remaining_events(date_: datetime.date) -> int:
+    """Returns int of how many remaining f1 events there are from a given date."""
     dt = datetime.combine(date_, datetime.min.time())
     remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
     return len(remaining_schedule)
 
 
-def check_file_exists(filename):
+def check_file_exists(filename: str) -> bool:
+    """Checks if a file exists."""
     try:
         with open(filename, "r"):
             pass
@@ -250,7 +251,8 @@ def check_file_exists(filename):
         return False
 
 
-def get_default_archive_filename(filename: str, folder: str = "Archived_data") -> str:
+def get_default_archive_filename(filename: str, folder: str = "archived_data") -> str:
+    """Returns an archive filename for a given json filename, defaults into folder 'archived_data'."""
     year = date.today().year - 1
     temp = filename.replace(".json", "")
     return f"{folder}/archived_{temp}_{year}.json"
