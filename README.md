@@ -10,9 +10,8 @@
 The bot needs multiple string values given in a json default 'discord_data.json'. Inside the template 'template_discord_data.json' is the default key strings used.
 
 ## Requirements
-Python >= 3.9.0. 
-
-See requirements.txt.
+- Python >= 3.9.0. 
+- See requirements.txt.
 
 ## Running
 Run bot.py.
