@@ -11,7 +11,8 @@ The bot needs multiple string values given in a json default 'discord_data.json'
 
 ## Requirements
 Python >= 3.9.0. 
-see requirements.txt.
+
+See requirements.txt.
 
 ## Running
 Run bot.py.
