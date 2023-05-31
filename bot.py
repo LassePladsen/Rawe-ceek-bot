@@ -47,7 +47,7 @@ async def update_status_message() -> None:
     today = date.today()
     if f1.check_f1_race_week(str(today)):
         # Set bot satus message to rawe ceek
-        activity = discord.Activity(type=discord.ActivityType.watching, name="the RAWE CEEK!")
+        activity = discord.Activity(type=discord.ActivityType.watching, name="the RACE WEEK!")
         await bot.change_presence(status=discord.Status.online, activity=activity)
 
     else:
