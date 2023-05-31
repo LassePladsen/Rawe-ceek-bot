@@ -171,7 +171,6 @@ def get_all_week_info(date_: Union[str, datetime.date], weeks_left: bool = True,
     f2_days = extract_days(event, f2_calendar)
 
     eventtitle = get_event_info(event)
-    print(f2_days,f1_days)
     eventinfo = get_all_days(event, f2_days, f1_days)
 
     if weeks_left:  # Print remaining race weeks in the season
