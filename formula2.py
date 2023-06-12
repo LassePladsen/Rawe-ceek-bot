@@ -18,7 +18,7 @@ def scrape_calendar() -> F2CalendarType:
     """
     f2_events = {}
 
-    for i in range(int(get_discord_data("f2_first_race_week_id")), int(get_discord_data("f2_last_race_week_id"))+1):
+    for i in range(int(get_discord_data("f2_first_raceid")), int(get_discord_data("f2_last_raceid"))+1):
         url = f'https://www.fiaformula2.com/Results?raceid={i}'
         response = requests.get(url)
 
