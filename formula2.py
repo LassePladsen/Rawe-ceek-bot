@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from util import (get_oslo_time, check_file_exists, update_existing_json, format_date, extract_json_data,
-                  get_sunday_date_str, get_event_date_str)
+                  get_sunday_date_str, get_event_date_str, get_discord_data)
 
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
@@ -18,7 +18,7 @@ def scrape_calendar() -> F2CalendarType:
     """
     f2_events = {}
 
-    for i in range(1054, 1064):
+    for i in range(int(get_discord_data("f2_first_race_week_id")), int(get_discord_data("f2_last_race_week_id"))+1):
         url = f'https://www.fiaformula2.com/Results?raceid={i}'
         response = requests.get(url)
 
@@ -67,7 +67,7 @@ def scrape_calendar() -> F2CalendarType:
             f2_events[raceday] = [round_number.strip(), country, circuit, date, races]
         except AttributeError:  # catch exception for if race weekend has been cancelled
             continue
-        return f2_events
+    return f2_events
 
 
 def store_calendar_to_json(calendar: F2CalendarType,
@@ -83,14 +83,18 @@ def store_calendar_to_json(calendar: F2CalendarType,
     update_existing_json(calendar, json_file)
 
 
-def extract_days(event: "fastf1.events.Event", f2_calendar: F2CalendarType)\
-                 -> Union[dict, dict[str, list[list[str]]]]:
+def extract_days(event: "fastf1.events.Event", f2_calendar: F2CalendarType) \
+        -> Union[dict, dict[str, list[list[str]]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
     """
     event_date = get_event_date_str(event)
-    f2_event = f2_calendar[event_date][4]
     session_days = {}
+    try:
+        f2_event = f2_calendar[event_date][4]
+    except KeyError:
+        return session_days
+
     for day in f2_event:
         try:
             dayname = day.pop(1)
@@ -105,7 +109,6 @@ def extract_days(event: "fastf1.events.Event", f2_calendar: F2CalendarType)\
     return session_days
 
 
-
 def check_f2_race_week(date_: Union[str, "datetime.date"]) -> bool:
     """Boolean return for if the given date is a f2 race week."""
     if not isinstance(date_, str):
@@ -116,4 +119,3 @@ def check_f2_race_week(date_: Union[str, "datetime.date"]) -> bool:
         return True
     else:
         return False
-

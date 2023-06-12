@@ -175,7 +175,7 @@ def get_all_week_info(date_: Union[str, datetime.date], weeks_left: bool = True,
 
     if weeks_left:  # Print remaining race weeks in the season
         if language.lower() == "norwegian":
-            eventinfo += "-Races igjen: " + str(util.get_number_remaining_events(date_))
+            eventinfo += "-Løp igjen: " + str(util.get_number_remaining_events(date_))
         else:
             pass  # add other language(s) for 'remaining events' here
 
@@ -205,14 +205,14 @@ def get_day_sessions(event: fastf1.events.Event, day: str, f2_event: dict[str, l
         f2_day = None
     f1_day = f1_event.get(day)
 
-    if f2_day is None and f1_day is None:
+    if not f2_day and not f1_day:
         return None
 
     if time_sort:  # sort output by time
         timing_dict = {}
         tbc_sessions = []
         # Firstly save all f2 sessions mapped by time
-        if f2_day is not None:
+        if f2_day:
             for name, time in f2_day:
                 if name == "Feature Race":
                     title = "**F2 Feature Race**"
@@ -232,7 +232,7 @@ def get_day_sessions(event: fastf1.events.Event, day: str, f2_event: dict[str, l
                         timing_dict[hour] = f"{title}: {time}"
 
         # Lastly save all f1 sessions mapped by time
-        if f1_day is not None:
+        if f1_day:
             for f1_session in f1_day:
                 # Extract session name
                 name = str(f1_session).split(" - ")[1]
@@ -261,11 +261,10 @@ def get_day_sessions(event: fastf1.events.Event, day: str, f2_event: dict[str, l
         for hour in hours_sort:
             output += timing_dict[hour] + "\n"
 
-
     else:  # dont time sort
         output = discord_day_format + daytitle.capitalize() + discord_day_format[::-1] + "\n"
         # Secondly print all f2 sessions that day
-        if f2_day is not None:
+        if f2_day:
             for name, time in f2_day:
                 if name == "Feature Race":
                     title = "**F2 Feature Race**"
@@ -276,7 +275,7 @@ def get_day_sessions(event: fastf1.events.Event, day: str, f2_event: dict[str, l
                 output += f"{title}: {time}\n"
 
         # Lastly print the f1 sessions that day
-        if f1_day is not None:
+        if f1_day:
             for f1_session in f1_day:
                 # Extract session name
                 name = str(f1_session).split(" - ")[1]

@@ -1,5 +1,5 @@
 from asyncio import sleep
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Union
 
 import discord
@@ -110,8 +110,12 @@ async def execute_week_embed() -> None:
     if "01-01" in str(today):
         util.archive_json("data/f2_calendar.json")
 
+    # Retrieves the last bot message. If a message is not found, it sets the date as 8 days before today
     message = await get_last_bot_message()
-    prev_date = message.created_at.date()
+    if message:
+        prev_date = message.created_at.date()
+    else:
+        prev_date = today - timedelta(days=8)
 
     # If it has posted this week and its a race week: only edit the embed to update f2 times
     posted_cond = util.get_sunday_date_str(today) == util.get_sunday_date_str(prev_date)  # is same week as prev post?
