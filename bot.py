@@ -13,11 +13,11 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
 # Discord Channel ID
-CHANNEL_ID = int(util.get_json_data("channel_id"))
+CHANNEL_ID = int(util.get_json_data("test_channel_id"))
 
 # Status run timing
-SCHEDULED_RUN_HOUR = 3  # 24 hour format
-RUN_HOUR_TOLERANCE = 3  # amount of hour tolerance
+SCHEDULED_HOUR = 0  # 24 hour format local time
+SCHEDULED_MINUTE = 0
 
 
 async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
@@ -133,14 +133,16 @@ async def execute_week_embed() -> None:
         await send_week_embed(today, race_week_emoji, no_race_week_emoji)
 
 
-async def status() -> None:
+async def status(print_msg=True) -> None:
     """Runs execute_week_embed() and
-    update_status_message() functions at scheduled time, within a tolerance"""
-    # Loops after given amount of hours
+    update_status_message() functions every 24 hours at scheduled time."""
     while True:
-        if util.get_hours_until_next_scheduled_hour(SCHEDULED_RUN_HOUR) > RUN_HOUR_TOLERANCE:
-            await sleep(60)  # sleep an hour and checks if its time to run the bot next loop
-            continue
+        # Wait to run until scheduled time
+        now = datetime.now()
+        future = datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE)
+        if now.hour >= SCHEDULED_HOUR and now.minute > SCHEDULED_MINUTE:
+            future += timedelta(days=1)  # if past scheduled time, wait until next day
+        await sleep((future - now).seconds)
 
         f2.store_calendar_to_json(f2.scrape_calendar())  # update the f2 calendar json
 
@@ -149,8 +151,8 @@ async def status() -> None:
         # Lastly update the status message
         await update_status_message()
 
-        print("Loop complete", datetime.today(), "UTC")
-        await sleep(60)  # loops an hour and checks if its time to run the bot
+        if print_msg:
+            print("Loop complete", datetime.today(), "UTC")
 
 
 @bot.command(aliases=["upd"])
