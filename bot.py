@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing
-SCHEDULED_RUN_HOUR = 0  # 24 hour format
+SCHEDULED_RUN_HOUR = 3  # 24 hour format
 RUN_HOUR_TOLERANCE = 3  # amount of hour tolerance
 
 
