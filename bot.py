@@ -13,7 +13,7 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
 # Discord Channel ID
-CHANNEL_ID = int(util.get_json_data("test_channel_id"))
+CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing
 SCHEDULED_HOUR = 0  # 24 hour format local time
