@@ -1,7 +1,7 @@
 import calendar
 import json
 import os
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Union
 
 import fastf1
@@ -10,8 +10,8 @@ import pytz
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
 
-def get_discord_data(key: str, file: str = "data/discord_data.json") -> str:
-    """Extracts string value from given datakey from a given .json filename """
+def get_json_data(key: str, file: str = "data/discord_data.json") -> str:
+    """Extracts string value from given datakey from a given .json filename. Defaults to discord_data.json"""
     with open(file, "r") as infile:
         data = json.load(infile)
     return data[key]
@@ -295,3 +295,17 @@ def extract_json_data(json_file: str = "data/f2_calendar.json") -> F2CalendarTyp
     """Extracts data from the given json file."""
     with open(json_file, "r") as infile:
         return json.load(infile)
+
+
+def get_hours_between_datetimes(datetime1, datetime2):
+    """Returns the hours between two datetime objects."""
+    return abs((datetime1 - datetime2).total_seconds() / 3600)
+
+
+def get_hours_until_next_scheduled_hour(scheduled_hour: int) -> float:
+    """Returns the hours until the next given scheduled hour."""
+    now = datetime.now()
+    scheduled_datetime = datetime(now.year, now.month, now.day, scheduled_hour, 0, 0)
+    if get_hours_between_datetimes(now, scheduled_datetime) > 24:
+        scheduled_datetime += timedelta(days=1)
+    return get_hours_between_datetimes(now, scheduled_datetime)

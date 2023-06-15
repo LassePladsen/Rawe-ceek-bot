@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from util import (get_oslo_time, check_file_exists, update_existing_json, format_date, extract_json_data,
-                  get_sunday_date_str, get_event_date_str, get_discord_data)
+                  get_sunday_date_str, get_event_date_str, get_json_data)
 
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
@@ -18,7 +18,10 @@ def scrape_calendar() -> F2CalendarType:
     """
     f2_events = {}
 
-    for i in range(int(get_discord_data("f2_first_raceid")), int(get_discord_data("f2_last_raceid"))+1):
+    race_ids_json_filename = "data/f2_race_ids.json"
+    first_race_id = int(get_json_data("f2_first_raceid", file=race_ids_json_filename))
+    last_race_id = int(get_json_data("f2_last_raceid", file=race_ids_json_filename))
+    for i in range(first_race_id, last_race_id + 1):
         url = f'https://www.fiaformula2.com/Results?raceid={i}'
         response = requests.get(url)
 

@@ -13,7 +13,11 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
 # Discord Channel ID
-CHANNEL_ID = int(util.get_discord_data("channel_id"))
+CHANNEL_ID = int(util.get_json_data("channel_id"))
+
+# Status run timing
+SCHEDULED_RUN_HOUR = 0  # 24 hour format
+RUN_HOUR_TOLERANCE = 3  # amount of hour tolerance
 
 
 async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
@@ -60,7 +64,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
     """Sends an embed for the week, either embed for race week or non race week."""
     # If its race week post the times, if not then post no. of weeks until next race week
     if f1.check_f1_race_week(date_):
-        race_week_image = util.get_discord_data("race_week_image")
+        race_week_image = util.get_json_data("race_week_image")
         file = discord.File(race_week_image, filename="race.png")
         embed = await get_race_week_embed(date_)
 
@@ -71,7 +75,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
     else:  # if not race week then post no. weeks until n# ext race week
         # Count how many weeks until next race week
         embed = await get_no_race_week_embed(date_)
-        no_race_week_image = util.get_discord_data("no_race_week_image")
+        no_race_week_image = util.get_json_data("no_race_week_image")
         file = discord.File(no_race_week_image, filename="norace.png")
 
         message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
@@ -92,7 +96,7 @@ async def edit_week_embed(date_: datetime.date):
 async def get_last_bot_message(max_messages=15) -> Union[discord.Message, None]:
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
-    bot_id = util.get_discord_data("bot_id")  # the bots user id to check the previous messages
+    bot_id = util.get_json_data("bot_id")  # the bots user id to check the previous messages
     prev_msgs = await bot.get_channel(CHANNEL_ID).history(limit=max_messages).flatten()  # list of prev messages
     prev_ids = [str(msg.author.id) for msg in prev_msgs]  # list of the user ids for all prev messages
 
@@ -124,16 +128,20 @@ async def execute_week_embed() -> None:
 
     # if not same week: post new embed and save date
     else:
-        race_week_emoji = util.get_discord_data("race_week_emoji")
-        no_race_week_emoji = util.get_discord_data("no_race_week_emoji")
+        race_week_emoji = util.get_json_data("race_week_emoji")
+        no_race_week_emoji = util.get_json_data("no_race_week_emoji")
         await send_week_embed(today, race_week_emoji, no_race_week_emoji)
 
 
-async def status(loop_hours) -> None:
-    """The bot loops. Loops the execute_week_embed() and
-    update_status_message() functions after given amount of hours."""
+async def status() -> None:
+    """Runs execute_week_embed() and
+    update_status_message() functions at scheduled time, within a tolerance"""
     # Loops after given amount of hours
     while True:
+        if util.get_hours_until_next_scheduled_hour(SCHEDULED_RUN_HOUR) > RUN_HOUR_TOLERANCE:
+            await sleep(60)  # sleep an hour and checks if its time to run the bot next loop
+            continue
+
         f2.store_calendar_to_json(f2.scrape_calendar())  # update the f2 calendar json
 
         await execute_week_embed()
@@ -142,7 +150,7 @@ async def status(loop_hours) -> None:
         await update_status_message()
 
         print("Loop complete", datetime.today(), "UTC")
-        await sleep(loop_hours * 3600)  # loops again after given hours (in seconds)
+        await sleep(60)  # loops an hour and checks if its time to run the bot
 
 
 @bot.command(aliases=["upd"])
@@ -158,7 +166,7 @@ async def update(ctx) -> None:
     reply = await bot.get_channel(msg_channel_id).send("Update done.")
 
     # if its not in the #bot channel, then delete both the user and bots messages after 2 seconds
-    bot_channel_id = int(util.get_discord_data("bot_channel_id"))
+    bot_channel_id = int(util.get_json_data("bot_channel_id"))
     if msg_channel_id != bot_channel_id:
         await sleep(2)
         await reply.delete()
@@ -170,8 +178,9 @@ async def update(ctx) -> None:
 @bot.event
 async def on_ready() -> None:
     """On bot ready, start the status loop."""
-    bot.loop.create_task(status(loop_hours=10))  # start the loop
+    bot.loop.create_task(status())  # start the loop
     print("PIERRRE GASLYYYY!")
 
+
 if __name__ == "__main__":
-    bot.run(util.get_discord_data("bot_token"))
+    bot.run(util.get_json_data("bot_token"))
