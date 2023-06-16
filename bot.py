@@ -136,6 +136,8 @@ async def execute_week_embed() -> None:
 async def status(print_msg=True) -> None:
     """Runs execute_week_embed() and
     update_status_message() functions every 24 hours at scheduled time."""
+
+    await update_status_message()  # start with status message, then wait until scheduled time to send embed
     now = datetime.now()
     future = datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE)
     while True:
