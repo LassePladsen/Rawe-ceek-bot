@@ -24,4 +24,4 @@ template_discord_data.json' is the default key strings used.
 
 ## Running
 
-Run bot.py.
+Run `bot.py.`
