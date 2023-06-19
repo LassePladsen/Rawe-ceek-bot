@@ -37,10 +37,12 @@ async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed:
     else:
         title = str(week_count) + " uker til neste rawe ceek..."  # title for embed message
 
+    next_event_name = f1.get_next_week_event(date_)["EventName"]
+
     en_date = util.get_event_date_str(f1.get_next_week_event(date_))
     no_date = str(int(en_date.split(" ")[0])) + " " + util.month_to_norwegian(en_date.split(" ")[1],
                                                                               caps=False)
-    des = "Neste race er " + no_date  # description for embed message
+    des = f"{next_event_name} den {no_date}."  # description for embed message
     embed = discord.Embed(title=title, description=des)
     embed.set_image(url="attachment://norace.png")
     return embed
@@ -72,7 +74,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         if emoji_race_week is not None:
             await message.add_reaction(emoji_race_week)
 
-    else:  # if not race week then post no. weeks until n# ext race week
+    else:  # if not race week then post no. weeks until next race week
         # Count how many weeks until next race week
         embed = await get_no_race_week_embed(date_)
         no_race_week_image = util.get_json_data("no_race_week_image")

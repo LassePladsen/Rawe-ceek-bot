@@ -86,8 +86,8 @@ def store_calendar_to_json(calendar: F2CalendarType,
     update_existing_json(calendar, json_file)
 
 
-def extract_days(event: "fastf1.events.Event", f2_calendar: F2CalendarType) \
-        -> Union[dict, dict[str, list[list[str]]]]:
+def extract_days(event: "fastf1.events.Event",
+                 f2_calendar: F2CalendarType) -> Union[dict, dict[str, list[list[str]]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
     """

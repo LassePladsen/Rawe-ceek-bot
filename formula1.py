@@ -182,8 +182,10 @@ def get_all_week_info(date_: Union[str, datetime.date], weeks_left: bool = True,
     return eventtitle, eventinfo
 
 
-def get_day_sessions(event: fastf1.events.Event, day: str, f2_event: dict[str, list[list[str]]],
-                     f1_event: dict[str, list[fastf1.core.Session]], time_sort: bool = True,
+def get_day_sessions(event: fastf1.events.Event,
+                     day: str, f2_event: dict[str, list[list[str]]],
+                     f1_event: dict[str, list[fastf1.core.Session]],
+                     time_sort: bool = True,
                      discord_day_format: str = "__"):
     """Returns string containing category and time for all F1 and F2 sessions for a given day.
     If 'time_sort' sort the print by time instead of as F2 sessions -> F1 sessions, defaults to true.
@@ -293,7 +295,8 @@ def get_day_sessions(event: fastf1.events.Event, day: str, f2_event: dict[str, l
     return output
 
 
-def get_all_days(event: fastf1.events.Event, f2_days: dict[str, list[list[str]]],
+def get_all_days(event: fastf1.events.Event,
+                 f2_days: dict[str, list[list[str]]],
                  f1_days: dict[str, list[fastf1.core.Session]]):
     """Returns a string containing all sessions for each day for a given event."""
     output = ""
