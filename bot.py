@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing
-SCHEDULED_HOUR = 0  # 24 hour format local time
+SCHEDULED_HOUR = 1  # 24 hour format local time
 SCHEDULED_MINUTE = 0
 
 
@@ -87,7 +87,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
 
 async def edit_week_embed(date_: datetime.date):
     """Edits an already sent weeks embed."""
-    message = await get_last_bot_message()
+    message = await get_previous_bot_message()
     if f1.check_f1_race_week(date_):
         new_embed = await get_race_week_embed(date_)
     else:
@@ -95,7 +95,7 @@ async def edit_week_embed(date_: datetime.date):
     await message.edit(embed=new_embed)
 
 
-async def get_last_bot_message(max_messages=15) -> Union[discord.Message, None]:
+async def get_previous_bot_message(max_messages=15) -> Union[discord.Message, None]:
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
     bot_id = util.get_json_data("bot_id")  # the bots user id to check the previous messages
@@ -116,8 +116,8 @@ async def execute_week_embed() -> None:
     if "01-01" in str(today):
         util.archive_json("data/f2_calendar.json")
 
-    # Retrieves the last bot message. If a message is not found, it sets the date as 8 days before today
-    message = await get_last_bot_message()
+    # Retrieves the previous bot message. If a message is not found, it sets the date as 8 days before today
+    message = await get_previous_bot_message()
     if message:
         prev_date = message.created_at.date()
     else:
