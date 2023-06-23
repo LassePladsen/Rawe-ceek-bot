@@ -37,7 +37,7 @@ def get_next_week_event(date_: datetime.date) -> fastf1.events.Event:
     sunday = util.get_sunday_date_str(date_)
 
     date_str = str(date_)
-    if check_f1_race_week(date_str):
+    if is_f1_race_week(date_str):
         return get_week_event(date_str)
 
     while sunday not in dates:
@@ -67,7 +67,7 @@ def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
     return dates
 
 
-def check_f1_race_week(date_: Union[str, datetime.date]) -> bool:
+def is_f1_race_week(date_: Union[str, datetime.date]) -> bool:
     """Boolean return for if the given date is a f1 race week."""
     if not isinstance(date_, str):
         date_ = str(date_)
@@ -77,8 +77,8 @@ def check_f1_race_week(date_: Union[str, datetime.date]) -> bool:
     return sunday in remaining_dates
 
 
-def check_sprint_session(event: fastf1.events.Event) -> bool:
-    """Boolean check if a race event has a f1 sprint session"""
+def is_sprint_week(event: fastf1.events.Event) -> bool:
+    """Boolean check if a race event has a f1 sprint session."""
     try:
         event.get_sprint()
         return True
@@ -96,7 +96,7 @@ def sort_sessions_by_day(event: fastf1.events.Event) -> dict[str, list[fastf1.co
 
     # Qualifying is friday if there is a sprint race, else it is saturday
     # Get the two sprint sessions if the race week includes a sprint:
-    if check_sprint_session(event):
+    if is_sprint_week(event):
         spq_session = event.get_sprint_shootout()
         sp_session = event.get_sprint()
 
@@ -201,7 +201,7 @@ def get_day_sessions(event: fastf1.events.Event,
 
     date_ = util.get_event_date_object(event)
 
-    if f2.check_f2_race_week(str(date_)):
+    if f2.is_f2_race_week(str(date_)):
         f2_day = f2_event.get(day)
     else:
         f2_day = None

@@ -241,7 +241,7 @@ def get_number_remaining_events(date_: datetime.date) -> int:
     return len(remaining_schedule)
 
 
-def check_file_exists(filename: str) -> bool:
+def file_exists(filename: str) -> bool:
     """Checks if a file exists."""
     try:
         with open(filename, "r"):
@@ -264,7 +264,7 @@ def archive_json(filename: str, archive_filename: str = None) -> None:
     if archive_filename is None:
         archive_filename = get_default_archive_filename(filename)
 
-    if check_file_exists(archive_filename):  # if archive already exists update it
+    if file_exists(archive_filename):  # if archive already exists update it
         with open(filename, "r") as infile:
             data = json.load(infile)
             update_existing_json(data, archive_filename)
@@ -279,7 +279,7 @@ def archive_json(filename: str, archive_filename: str = None) -> None:
 
 def update_existing_json(json_dict: dict, filename: str) -> None:
     """Updates an existing json file with new keys-value pairs, if they exist."""
-    if not check_file_exists(filename):
+    if not file_exists(filename):
         return
     with open(filename, "r") as infile:
         data = json.load(infile)

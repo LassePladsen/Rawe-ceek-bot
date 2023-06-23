@@ -51,7 +51,7 @@ async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed:
 async def update_status_message() -> None:
     """Updates the bots status message with either a message depending on if its a race week or not."""
     today = date.today()
-    if f1.check_f1_race_week(str(today)):
+    if f1.is_f1_race_week(str(today)):
         # Set bot satus message to rawe ceek
         activity = discord.Activity(type=discord.ActivityType.watching, name="the RACE WEEK!")
         await bot.change_presence(status=discord.Status.online, activity=activity)
@@ -65,7 +65,7 @@ async def update_status_message() -> None:
 async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_race_week=None):
     """Sends an embed for the week, either embed for race week or non race week."""
     # If its race week post the times, if not then post no. of weeks until next race week
-    if f1.check_f1_race_week(date_):
+    if f1.is_f1_race_week(date_):
         race_week_image = util.get_json_data("race_week_image")
         file = discord.File(race_week_image, filename="race.png")
         embed = await get_race_week_embed(date_)
@@ -88,7 +88,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
 async def edit_week_embed(date_: datetime.date):
     """Edits an already sent weeks embed."""
     message = await get_previous_bot_message()
-    if f1.check_f1_race_week(date_):
+    if f1.is_f1_race_week(date_):
         new_embed = await get_race_week_embed(date_)
     else:
         new_embed = await get_no_race_week_embed(date_)
