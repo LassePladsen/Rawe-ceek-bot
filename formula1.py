@@ -117,15 +117,20 @@ def get_event_info(event: fastf1.events.Event, upper_case=True, event_discord_fo
     name = event["EventName"]
     if upper_case:
         name = name.upper()
-    date_ = str(event["EventDate"])[:10]
+    date_ = event["EventDate"].date()
 
-    # Extract month number, find the month name, and translate to Norwegian
-    month = util.month_to_norwegian(calendar.month_name[int(date_[5:7])])
-
-    end_day = str(int(date_[-2:]))  # gets rid of the leading zero if the day number is < 10
-    start_day = str(int(end_day) - 2)
-
-    out_date = start_day + "-" + end_day + " " + month
+    end_day = date_.day
+    start_day = end_day - 2
+    month = date_.month
+    month_string = util.month_to_norwegian(util.month_index_to_name(month))
+    if start_day <= 0:
+        # If the start day is less than 0, it means the event starts in the previous month
+        days_in_prev_month = calendar.monthrange(date_.year, month - 1)[1]
+        prev_month_string = util.month_to_norwegian(util.month_index_to_name(month - 1))
+        start_day = days_in_prev_month + start_day
+        out_date = f"{start_day} {prev_month_string} - {end_day} {month_string}"
+    else:
+        out_date = f"{start_day} - {end_day} {month_string}"
 
     if event_discord_format is not None:
         # Print with given discord formatting

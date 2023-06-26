@@ -15,8 +15,9 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 # Discord Channel ID
 CHANNEL_ID = int(util.get_json_data("channel_id"))
 
-# Status run timing
-SCHEDULED_HOUR = 1  # 24 hour format local time
+# Status run timing (24 hour format)
+# NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
+SCHEDULED_HOUR = 3
 SCHEDULED_MINUTE = 0
 
 
@@ -193,3 +194,4 @@ async def on_ready() -> None:
 
 if __name__ == "__main__":
     bot.run(util.get_json_data("bot_token"))
+
