@@ -1,4 +1,4 @@
-from asyncio import sleep
+from asyncio import sleep, get_event_loop
 from datetime import date, datetime, timedelta
 from typing import Union
 
@@ -12,7 +12,9 @@ import util
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
-# Discord Channel ID
+loop = get_event_loop()
+loop.run_until_complete(util.startup_check())
+# Discord Channel ID for the bot
 CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)
@@ -188,7 +190,6 @@ async def update(ctx) -> None:
 @bot.event
 async def on_ready() -> None:
     """On bot ready, start the status loop."""
-    await util.startup_check()
     bot.loop.create_task(status())  # start the loop
     print("PIERRRE GASLYYYY!")
 
