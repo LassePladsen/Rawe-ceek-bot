@@ -35,17 +35,17 @@ def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
     days_until_sunday = 6 - weekday
 
     # Create new day date and fix the formatting (f.ex 07 instead of 7)
-    new_day = int(str(date_)[-2:]) + days_until_sunday
-    new_day = day_string_formatting(new_day)
+    new_day = date_.day + days_until_sunday
+    new_day = day_string_formatting(str(new_day))
 
-    date_sunday = str(date_)[:-2] + new_day
+    date_sunday = str(date_)[:-2] + str(new_day)
 
     # Roll over to next month if day number exceeds days in the given month:
     days_in_month = calendar.monthrange(date_.year, date_.month)[1]
     if int(date_sunday[-2:]) > days_in_month:
         # Find new day number
         days_exceeded = int(date_sunday[-2:]) - days_in_month
-        new_day = day_string_formatting(days_exceeded)  # format day number
+        new_day = day_string_formatting(str(days_exceeded))  # format day number
         date_sunday = date_sunday[:-2] + new_day  # roll to new day number
 
         date_sunday = date_sunday.replace(str(date_.month), str(date_.month + 1))  # roll to next month
@@ -153,8 +153,8 @@ def get_event_date_str(event: fastf1.events.Event) -> str:
 def get_event_date_object(event: Union[str, fastf1.events.Event]) -> datetime.date:
     """Get the sunday event date as datetime.date object."""
     if not isinstance(event, str):
-        string = str(event["EventDate"]).split(" ")[0]
-    date_ = get_sunday_date_object(get_date_object(string))
+        event = str(event["EventDate"]).split(" ")[0]
+    date_ = get_sunday_date_object(event)
     return date_
 
 
@@ -309,3 +309,96 @@ def get_hours_until_next_scheduled_hour(scheduled_hour: int) -> float:
     if get_hours_between_datetimes(now, scheduled_datetime) > 24:
         scheduled_datetime += timedelta(days=1)
     return get_hours_between_datetimes(now, scheduled_datetime)
+
+
+async def startup_check() -> None:
+    """Checks if the 'discord_data' and 'f2_race_ids' json files exists, asks the user if they want to create them.
+    If they exists, then it also checks if all the keys are present."""
+    discord_data_values, f2_race_id_values = False, False
+    discord_data_exists = file_exists("data/discord_data.json")
+    if not discord_data_exists:
+        print("No 'data/discord_data.json' file found, do you want to create one? (y/n)")
+        answer = input("> ")
+        if answer.lower() == "y":
+            await create_json("data/discord_data.json")
+    discord_data_exists = file_exists("data/discord_data.json")
+    if discord_data_exists:   # was the file was created above?
+        discord_data_values = await check_json_values("data/discord_data.json")  # missing values?
+
+    f2_race_ids_exists = file_exists("data/f2_race_ids.json")
+    if not f2_race_ids_exists:
+        print("No 'data/f2_race_ids.json' file found, do you want to create one? (y/n)")
+        answer = input("> ")
+        if answer.lower() == "y":
+            await create_json("data/f2_race_ids.json")
+    f2_race_ids_exists = file_exists("data/f2_race_ids.json")
+    if f2_race_ids_exists:  # was the file was created above?
+        f2_race_id_values = await check_json_values("data/f2_race_ids.json")  # missing values?
+
+    # Check which of the files are missing, or both:
+    missing_files = []
+    if not discord_data_exists:
+        missing_files.append("data/discord_data.json")
+    if not f2_race_ids_exists:
+        missing_files.append("data/f2_race_ids.json")
+    if missing_files:
+        print(f"Missing the following json files: {missing_files}. Please restart the bot "
+              f"or add them manually.\nExiting...")
+        exit(1)
+    # Check which of the files are missing required values, or both:
+    missing_file_values = []
+    if not discord_data_values:
+        missing_file_values.append("data/discord_data.json")
+    if not f2_race_id_values:
+        missing_file_values.append("data/f2_race_ids.json")
+    if missing_file_values:
+        print(f"The following json files are missing required values: {missing_file_values}. Please restart the bot"
+              f" or add them manually.\nExiting...")
+        exit(1)
+
+
+async def create_json(file: str, default_data: dict[str: str] = None) -> None:
+    """Creates a new json file."""
+    if default_data is None:
+        if file == "data/discord_data.json":
+            with open("data/template_discord_data.json", "r") as infile:
+                default_data = json.load(infile)
+        elif file == "data/f2_race_ids.json":
+            default_data = {
+                "f2_first_raceid": "1050",
+                "f2_last_raceid": "1063"
+            }
+        else:
+            raise NotImplementedError(f"util.create_json() default data not implemented for '{file}',"
+                                      f"please input a dictionary with key-value pairs.")
+    print(f"Creating new {file} file...")
+    with open(file, "w") as outfile:
+        json.dump(default_data, outfile, indent=3)
+
+
+async def check_json_values(file: str, required_value_keys: list[str] = None) -> bool:
+    """Checks if every needed value is present in a given json file."""
+    if required_value_keys is None:
+        if file == "data/discord_data.json":
+            required_value_keys = ["bot_token", "bot_id", "channel_id"]
+        elif file == "data/f2_race_ids.json":
+            required_value_keys = ["f2_first_raceid", "f2_last_raceid"]
+        else:
+            raise NotImplementedError(f"util.check_json_values() list of required value keys not implemented"
+                                      f"for '{file}, please input a list of strings with the required keys.")
+    with open(file, "r") as infile:
+        data = json.load(infile)
+        for key in required_value_keys:
+            if not data.get(key):   # empty value
+                print(f"'{key}' value not found in '{file}', do you want to add it? (y/n)")
+                answer = input("> ")
+                if answer.lower() == "y":
+                    print(f"Enter the value for '{key}':")
+                    value = input("> ")
+                    data[key] = value
+    with open(file, "w") as outfile:
+        json.dump(data, outfile, indent=3)
+    with open(file, "r") as infile:  # now check if all the required values are present
+        data = json.load(infile)
+        all_values_set = all(data.get(key) for key in required_value_keys)
+    return all_values_set

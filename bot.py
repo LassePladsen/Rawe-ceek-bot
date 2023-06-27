@@ -188,6 +188,7 @@ async def update(ctx) -> None:
 @bot.event
 async def on_ready() -> None:
     """On bot ready, start the status loop."""
+    await util.startup_check()
     bot.loop.create_task(status())  # start the loop
     print("PIERRRE GASLYYYY!")
 
