@@ -158,7 +158,7 @@ def get_event_date_object(event: Union[str, fastf1.events.Event]) -> datetime.da
     return date_
 
 
-def get_oslo_time(local_time: str, country: str) -> str:
+def local_time_to_oslo(local_time: str, country: str) -> str:
     """Converts local time to Oslo time."""
     local_time = f"2023-01-01 {local_time}"
 
@@ -177,8 +177,7 @@ def get_oslo_time(local_time: str, country: str) -> str:
     # Convert local time to Oslo time
     oslo_time = local_tz.localize(dt).astimezone(gmt_plus_one)
 
-    # Return Oslo time in ISO format
-    return f"{oslo_time.hour}:{oslo_time.minute}"
+    return oslo_time.time().isoformat(timespec="minutes")
 
 
 def get_country_code(country_name: str) -> Union[str, None]:

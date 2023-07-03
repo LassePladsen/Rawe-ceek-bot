@@ -4,7 +4,7 @@ from typing import Union
 import requests
 from bs4 import BeautifulSoup
 
-from util import (get_oslo_time, file_exists, update_existing_json, format_date, extract_json_data,
+from util import (local_time_to_oslo, file_exists, update_existing_json, format_date, extract_json_data,
                   get_sunday_date_str, get_event_date_str, get_json_data)
 
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
@@ -50,10 +50,9 @@ def scrape_calendar() -> F2CalendarType:
                         time = race[2]
                         if time != "TBC":
                             start, stop = time.split("-")
-                            start = get_oslo_time(start, country)
-                            stop = get_oslo_time(stop, country)
+                            start = local_time_to_oslo(start, country)
+                            stop = local_time_to_oslo(stop, country)
                             race[2] = f"{start}-{stop}"
-
                 # Format times, add zero to beginning or end so the times are formatted as: "15:55-16:25"
                 for j in range(len(race)):
                     jrace = race[j]
@@ -81,9 +80,8 @@ def store_calendar_to_json(calendar: F2CalendarType,
     if not file_exists(json_file):
         with open(json_file, "w") as outfile:
             json.dump(calendar, outfile, indent=3)
-        return
-
-    update_existing_json(calendar, json_file)
+    else:
+        update_existing_json(calendar, json_file)
 
 
 def extract_days(event: "fastf1.events.Event",
