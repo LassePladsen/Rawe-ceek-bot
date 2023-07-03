@@ -25,3 +25,8 @@ template_discord_data.json' is the default key strings used.
 ## Running
 1. Create a `data/discord_data.json` file from the template `data/template_discord_data.json` and fill in the following required values: `"bot_token", "bot_id", "channel_id"`.
 2. Run `bot.py.`
+
+
+# "Rawe ceek??"
+See https://knowyourmeme.com/memes/rawe-ceek.
+![Rawe ceek origin](data/raweceek_origin_meme.jpg)
