@@ -79,87 +79,6 @@
          ]
       ]
    ],
-   "02 July": [
-      "Round 8",
-      "Austria",
-      "Spielberg",
-      "30-02 July 2023",
-      [
-         [
-            "Qualifying Session",
-            "Friday",
-            "15:55-16:25"
-         ],
-         [
-            "Sprint Race",
-            "Saturday",
-            "13:45-14:30"
-         ],
-         [
-            "Feature Race",
-            "Sunday",
-            "09:55-10:55"
-         ]
-      ]
-   ],
-   "09 July": [
-      "Round 9",
-      "Great Britain",
-      "Silverstone",
-      "07-09 July 2023",
-      [
-         [
-            "Qualifying Session",
-            "Friday",
-            "16:05-16:35"
-         ],
-         [
-            "Sprint Race",
-            "Saturday",
-            "14:15-15:00"
-         ],
-         [
-            "Feature Race",
-            "Sunday",
-            "10:55-11:55"
-         ]
-      ]
-   ],
-   "23 July": [
-      "Round 10",
-      "Hungary",
-      "Budapest",
-      "21-23 July 2023",
-      []
-   ],
-   "30 July": [
-      "Round 11",
-      "Belgium",
-      "Spa-Francorchamps",
-      "28-30 July 2023",
-      []
-   ],
-   "27 August": [
-      "Round 12",
-      "Netherlands",
-      "Zandvoort",
-      "25-27 August 2023",
-      []
-   ],
-   "03 September": [
-      "Round 13",
-      "Italy",
-      "Monza",
-      "01-03 September 2023",
-      []
-   ],
-   "26 November": [
-      "Round 14",
-      "United Arab Emirates",
-      "Yas Island",
-      "24-26 November 2023",
-      []
-   ],
    "28 May": [
       "Round 6",
       "Monaco",
@@ -203,5 +122,112 @@
             "0O. Bearman56:56.729"
          ]
       ]
+   ],
+   "02 July": [
+      "Round 8",
+      "Austria",
+      "Spielberg",
+      "30-02 July 2023",
+      [
+         [
+            "Qualifying Session",
+            "0V. Martins1:14.643"
+         ],
+         [
+            "Sprint Race",
+            "0J. Crawford39:36.231"
+         ],
+         [
+            "Feature Race",
+            "0R. Verschoor56:31.050"
+         ]
+      ]
+   ],
+   "09 July": [
+      "Round 9",
+      "Great Britain",
+      "Silverstone",
+      "07-09 July 2023",
+      [
+         [
+            "Qualifying Session",
+            "0V. Martins1:39.832"
+         ],
+         [
+            "Sprint Race",
+            "0F. Vesti40:16.405"
+         ],
+         [
+            "Feature Race",
+            "0V. Martins58:54.389"
+         ]
+      ]
+   ],
+   "23 July": [
+      "Round 10",
+      "Hungary",
+      "Budapest",
+      "21-23 July 2023",
+      [
+         [
+            "Qualifying Session",
+            "Friday",
+            "16:00-16:30"
+         ],
+         [
+            "Sprint Race",
+            "Saturday",
+            "14:15-15:00"
+         ],
+         [
+            "Feature Race",
+            "Sunday",
+            "10:05-11:05"
+         ]
+      ]
+   ],
+   "30 July": [
+      "Round 11",
+      "Belgium",
+      "Spa-Francorchamps",
+      "28-30 July 2023",
+      [
+         [
+            "Qualifying Session",
+            "Friday",
+            "15:55-16:25"
+         ],
+         [
+            "Sprint Race",
+            "Saturday",
+            "13:45-14:30"
+         ],
+         [
+            "Feature Race",
+            "Sunday",
+            "10:00-10:45"
+         ]
+      ]
+   ],
+   "27 August": [
+      "Round 12",
+      "Netherlands",
+      "Zandvoort",
+      "25-27 August 2023",
+      []
+   ],
+   "03 September": [
+      "Round 13",
+      "Italy",
+      "Monza",
+      "01-03 September 2023",
+      []
+   ],
+   "26 November": [
+      "Round 14",
+      "United Arab Emirates",
+      "Yas Island",
+      "24-26 November 2023",
+      []
    ]
 }

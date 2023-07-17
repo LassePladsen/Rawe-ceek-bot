@@ -276,20 +276,6 @@ def archive_json(filename: str, archive_filename: str = None) -> None:
         json.dump({}, new_file, indent=3)
 
 
-def update_existing_json(json_dict: dict, filename: str) -> None:
-    """Updates an existing json file with new keys-value pairs, if they exist."""
-    if not file_exists(filename):
-        return
-    with open(filename, "r") as infile:
-        data = json.load(infile)
-        for key in json_dict:
-            if key in data:  # dont overwrite if date already is in the json
-                continue
-            data[key] = json_dict[key]
-    with open(filename, "w") as outfile:
-        json.dump(data, outfile, indent=3)
-
-
 def extract_json_data(json_file: str = "data/f2_calendar.json") -> F2CalendarType:
     """Extracts data from the given json file."""
     with open(json_file, "r") as infile:
