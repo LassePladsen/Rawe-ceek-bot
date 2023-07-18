@@ -4,7 +4,7 @@ from typing import Union
 import requests
 from bs4 import BeautifulSoup
 
-from util import (local_time_to_oslo, file_exists, format_date, extract_json_data,
+from util import (local_time_to_oslo, file_exists, update_f2cal_json, format_date, extract_json_data,
                   get_sunday_date_str, get_event_date_str, get_json_data)
 
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
@@ -77,9 +77,11 @@ def store_calendar_to_json(calendar: F2CalendarType,
     """Saves f2 calendar data taken from scrape_calendar() and saves it to a json file.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
     """
-    with open(json_file, "w") as outfile:
-        json.dump(calendar, outfile, indent=3)
-
+    if not file_exists(json_file):
+        with open(json_file, "w") as outfile:
+            json.dump(calendar, outfile, indent=3)
+    else:
+        update_f2cal_json(calendar, json_file)
 
 
 def extract_days(event: "fastf1.events.Event",
