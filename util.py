@@ -284,9 +284,15 @@ def update_f2cal_json(json_dict: dict, filename: str) -> None:
     with open(filename, "r") as infile:
         old_data = json.load(infile)
         for key, val in json_dict.items():
-            # if either a new key, or existing key but with no timing info for the first session:
-            if (key not in old_data) or (old_data[key][-1][0][1] not in ["Thursday", "Friday", "Saturday", "Sunday"]):
-                old_data[key] = val  # replace old value with new value
+            empty_cond = not bool(old_data[key][-1])  # last element in the old value is empty (list)
+            # if either a new key or existing key with empty timing info:
+            if (key not in old_data) or empty_cond:
+                old_data[key] = val  # then replace old value with new updated value
+            # or if existing key with non-empty timing info
+            elif not empty_cond:
+                # but is missing the actual timing info (to prevent indexing errors):
+                if old_data[key][-1][0][1] not in ["Thursday", "Friday", "Saturday", "Sunday"]:
+                    old_data[key] = val
     with open(filename, "w") as outfile:
         json.dump(old_data, outfile, indent=3)
         
