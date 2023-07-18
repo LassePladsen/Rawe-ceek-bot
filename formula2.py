@@ -74,7 +74,7 @@ def scrape_calendar() -> F2CalendarType:
 
 def store_calendar_to_json(calendar: F2CalendarType,
                            json_file: str = "data/f2_calendar.json") -> None:
-    """Saves f2 calendar data taken from scrape_calendar() and saves it to json, but only if there is new information.
+    """Saves f2 calendar data taken from scrape_calendar() and saves it to a json file.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
     """
     if not file_exists(json_file):

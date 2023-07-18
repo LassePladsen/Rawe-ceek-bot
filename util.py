@@ -289,8 +289,8 @@ def update_f2cal_json(json_dict: dict, filename: str) -> None:
                 old_data[key] = val  # replace old value with new value
     with open(filename, "w") as outfile:
         json.dump(old_data, outfile, indent=3)
-
-
+        
+        
 def extract_json_data(json_file: str = "data/f2_calendar.json") -> F2CalendarType:
     """Extracts data from the given json file."""
     with open(json_file, "r") as infile:

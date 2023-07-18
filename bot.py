@@ -170,6 +170,7 @@ async def update(ctx) -> None:
     """On recieving update command with the bots prefix, executes the weekly embed send/edit
     with todays updated info. Also updates the status message just incase.
     If the command was not in #bot channel, delete both the command message and the reply message."""
+    f2.store_calendar_to_json(f2.scrape_calendar())  # update the f2 calendar json
     await execute_week_embed()
     await update_status_message()
 
