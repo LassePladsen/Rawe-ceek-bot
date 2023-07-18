@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
 loop = get_event_loop()
 loop.run_until_complete(util.startup_check())
-# Discord Channel ID for the bot
+# Discord Channel ID for the bot to work
 CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)

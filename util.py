@@ -266,7 +266,7 @@ def archive_json(filename: str, archive_filename: str = None) -> None:
     if file_exists(archive_filename):  # if archive already exists update it
         with open(filename, "r") as infile:
             data = json.load(infile)
-            update_existing_json(data, archive_filename)
+            update_f2cal_json(data, archive_filename)
 
     else:
         os.rename(filename, archive_filename)
@@ -276,18 +276,19 @@ def archive_json(filename: str, archive_filename: str = None) -> None:
         json.dump({}, new_file, indent=3)
 
 
-def update_existing_json(json_dict: dict, filename: str) -> None:
-    """Updates an existing json file with new keys-value pairs, if they exist."""
+def update_f2cal_json(json_dict: dict, filename: str) -> None:
+    """Updates an existing f2 calendar json file with new keys-value pairs,
+     also updates old keys' values if they dont contain timing info."""
     if not file_exists(filename):
         return
     with open(filename, "r") as infile:
-        data = json.load(infile)
-        for key in json_dict:
-            if key in data:  # dont overwrite if date already is in the json
-                continue
-            data[key] = json_dict[key]
+        old_data = json.load(infile)
+        for key, val in json_dict.items():
+            # if either a new key, or existing key but with no timing info for the first session:
+            if (key not in old_data) or (old_data[key][-1][0][1] not in ["Thursday", "Friday", "Saturday", "Sunday"]):
+                old_data[key] = val  # replace old value with new value
     with open(filename, "w") as outfile:
-        json.dump(data, outfile, indent=3)
+        json.dump(old_data, outfile, indent=3)
 
 
 def extract_json_data(json_file: str = "data/f2_calendar.json") -> F2CalendarType:

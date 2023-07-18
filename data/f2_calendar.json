@@ -125,41 +125,6 @@
          ]
       ]
    ],
-   "23 July": [
-      "Round 10",
-      "Hungary",
-      "Budapest",
-      "21-23 July 2023",
-      []
-   ],
-   "30 July": [
-      "Round 11",
-      "Belgium",
-      "Spa-Francorchamps",
-      "28-30 July 2023",
-      []
-   ],
-   "27 August": [
-      "Round 12",
-      "Netherlands",
-      "Zandvoort",
-      "25-27 August 2023",
-      []
-   ],
-   "03 September": [
-      "Round 13",
-      "Italy",
-      "Monza",
-      "01-03 September 2023",
-      []
-   ],
-   "26 November": [
-      "Round 14",
-      "United Arab Emirates",
-      "Yas Island",
-      "24-26 November 2023",
-      []
-   ],
    "28 May": [
       "Round 6",
       "Monaco",
@@ -203,5 +168,72 @@
             "0O. Bearman56:56.729"
          ]
       ]
+   ],
+   "23 July": [
+      "Round 10",
+      "Hungary",
+      "Budapest",
+      "21-23 July 2023",
+      [
+         [
+            "Qualifying Session",
+            "Friday",
+            "16:00-16:30"
+         ],
+         [
+            "Sprint Race",
+            "Saturday",
+            "14:15-15:00"
+         ],
+         [
+            "Feature Race",
+            "Sunday",
+            "10:05-11:05"
+         ]
+      ]
+   ],
+   "30 July": [
+      "Round 11",
+      "Belgium",
+      "Spa-Francorchamps",
+      "28-30 July 2023",
+      [
+         [
+            "Qualifying Session",
+            "Friday",
+            "15:55-16:25"
+         ],
+         [
+            "Sprint Race",
+            "Saturday",
+            "13:45-14:30"
+         ],
+         [
+            "Feature Race",
+            "Sunday",
+            "10:00-10:45"
+         ]
+      ]
+   ],
+   "27 August": [
+      "Round 12",
+      "Netherlands",
+      "Zandvoort",
+      "25-27 August 2023",
+      []
+   ],
+   "03 September": [
+      "Round 13",
+      "Italy",
+      "Monza",
+      "01-03 September 2023",
+      []
+   ],
+   "26 November": [
+      "Round 14",
+      "United Arab Emirates",
+      "Yas Island",
+      "24-26 November 2023",
+      []
    ]
 }
