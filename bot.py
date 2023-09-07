@@ -10,6 +10,7 @@ import formula2 as f2
 import util
 
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
 loop = get_event_loop()
@@ -102,12 +103,10 @@ async def get_previous_bot_message(max_messages=15) -> Union[discord.Message, No
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
     bot_id = util.get_json_data("bot_id")  # the bots user id to check the previous messages
-    prev_msgs = await bot.get_channel(CHANNEL_ID).history(limit=max_messages).flatten()  # list of prev messages
-    prev_ids = [str(msg.author.id) for msg in prev_msgs]  # list of the user ids for all prev messages
-
-    if bot_id in prev_ids:
-        index = prev_ids.index(bot_id)  # first index of last bot msg
-        return prev_msgs[index]
+    async for message in bot.get_channel(CHANNEL_ID).history(limit=max_messages):
+        if bot_id == str(message.author.id):
+            return message
+    return None
 
 
 async def execute_week_embed() -> None:
@@ -148,7 +147,7 @@ async def status(print_msg=True) -> None:
     while True:
         # Wait to run until scheduled time
         now = datetime.now()
-        if now.hour >= SCHEDULED_HOUR and now.minute > SCHEDULED_MINUTE:
+        if now > datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE):
             future += timedelta(days=1)  # if past scheduled time, wait until next day
         await sleep((future - now).seconds)
 
@@ -197,4 +196,3 @@ async def on_ready() -> None:
 
 if __name__ == "__main__":
     bot.run(util.get_json_data("bot_token"))
-
