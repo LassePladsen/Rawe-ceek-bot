@@ -10,7 +10,6 @@ import formula2 as f2
 import util
 
 intents = discord.Intents.default()
-intents.message_content = True
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
 loop = get_event_loop()
@@ -103,10 +102,12 @@ async def get_previous_bot_message(max_messages=15) -> Union[discord.Message, No
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
     bot_id = util.get_json_data("bot_id")  # the bots user id to check the previous messages
-    async for message in bot.get_channel(CHANNEL_ID).history(limit=max_messages):
-        if bot_id == str(message.author.id):
-            return message
-    return None
+    prev_msgs = await bot.get_channel(CHANNEL_ID).history(limit=max_messages).flatten()  # list of prev messages
+    prev_ids = [str(msg.author.id) for msg in prev_msgs]  # list of the user ids for all prev messages
+
+    if bot_id in prev_ids:
+        index = prev_ids.index(bot_id)  # first index of last bot msg
+        return prev_msgs[index]
 
 
 async def execute_week_embed() -> None:
