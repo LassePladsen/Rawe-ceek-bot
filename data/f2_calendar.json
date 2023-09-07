@@ -220,14 +220,40 @@
       "Netherlands",
       "Zandvoort",
       "25-27 August 2023",
-      []
+      [
+         [
+            "Qualifying Session",
+            "0J. Crawford1:21.210"
+         ],
+         [
+            "Sprint Race",
+            "0I. Hadjar4:59.002"
+         ],
+         [
+            "Feature Race",
+            "0C. Novalak1:01:36.125"
+         ]
+      ]
    ],
    "03 September": [
       "Round 13",
       "Italy",
       "Monza",
       "01-03 September 2023",
-      []
+      [
+         [
+            "Qualifying Session",
+            "0T. Pourchaire1:32.328"
+         ],
+         [
+            "Sprint Race",
+            "0F. Vesti40:18.006"
+         ],
+         [
+            "Feature Race",
+            "0O. Bearman1:03:50.518"
+         ]
+      ]
    ],
    "26 November": [
       "Round 14",
