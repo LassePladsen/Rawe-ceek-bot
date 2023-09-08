@@ -61,7 +61,13 @@ async def update_status_message() -> None:
 
     else:
         # Set bot satus message to no rawe ceek
-        activity = discord.Activity(type=discord.ActivityType.watching, name="nothing... :(")
+        until_next_race = f1.until_next_race_week(today)
+        if until_next_race == 1:
+            until_next_race += "uke"
+        else:
+            until_next_race += "uker"
+
+        activity = discord.Activity(type=discord.ActivityType.watching, name=f"nothing for {until_next_race}... :(")
         await bot.change_presence(status=discord.Status.online, activity=activity)
 
 
