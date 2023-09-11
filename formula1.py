@@ -69,9 +69,6 @@ def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
 
 def is_f1_race_week(date_: Union[str, datetime.date]) -> bool:
     """Boolean return for if the given date is a f1 race week."""
-    if not isinstance(date_, str):
-        date_ = str(date_)
-
     sunday = util.get_sunday_date_str(date_)
     remaining_dates = get_remaining_dates(date_)
     return sunday in remaining_dates
