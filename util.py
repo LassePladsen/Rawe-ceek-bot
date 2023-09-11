@@ -31,7 +31,7 @@ def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
     """Returns a string with sundays date of the same week as the given date formatted '2023-05-07'"""
     if isinstance(date_, str):
         date_ = get_date_object(date_)
-    weekday = date.weekday(date_)  # the weekday number of the week beginning at 0 (monday)
+    weekday = date_.weekday()  # the weekday number of the week beginning at 0 (monday)
     days_until_sunday = 6 - weekday
 
     # Create new day date and fix the formatting (f.ex 07 instead of 7)
