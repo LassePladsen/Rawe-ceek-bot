@@ -19,7 +19,7 @@ CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-SCHEDULED_HOUR = 3
+SCHEDULED_HOUR = 5
 SCHEDULED_MINUTE = 0
 
 
@@ -34,7 +34,10 @@ async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
 async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed:
     """Returns embed for a non race week with a 'no race week' image."""
     week_count = f1.until_next_race_week(date_)
-    if week_count == 1:
+    if week_count == 0:
+        raise ValueError("Count until next race is zero,"
+                         " meaning there is a race this week. Can't return a no_race_week_embed.")
+    elif week_count == 1:
         title = str(week_count) + " uke til neste rawe ceek..."  # title for embed message
 
     else:
@@ -141,7 +144,17 @@ async def execute_week_embed() -> None:
     else:
         race_week_emoji = util.get_json_data("race_week_emoji")
         no_race_week_emoji = util.get_json_data("no_race_week_emoji")
-        await send_week_embed(today, race_week_emoji, no_race_week_emoji)
+        while True:
+            try:
+                await send_week_embed(today, race_week_emoji, no_race_week_emoji)
+            except ValueError:  # f1.is_f1_race_week() returned false when it is a race week for some reason...
+                wait = 60  # a minute
+                print(f"ValueError caught from send_week_embed(), waiting {wait} seconds...")
+                await sleep(wait)
+                print("Trying send_week_embed() again...")
+                await send_week_embed(today, race_week_emoji, no_race_week_emoji)
+            else:
+                return
 
 
 async def status(print_msg=True) -> None:
