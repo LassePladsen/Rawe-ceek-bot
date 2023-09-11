@@ -17,7 +17,7 @@ def get_json_data(key: str, file: str = "data/discord_data.json") -> str:
     return data[key]
 
 
-def day_string_formatting(day: str) -> str:
+def day_string_formatting(day: Union[int, str]) -> str:
     """Gives a string containing a day number formatted like '05' instead of '5' (example).
     Does nothing if the day number is over 10. Argument can be int or str."""
     day = int(day)
