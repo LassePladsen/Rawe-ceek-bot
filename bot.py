@@ -22,9 +22,6 @@ CHANNEL_ID = int(util.get_json_data("channel_id"))
 SCHEDULED_HOUR = 5
 SCHEDULED_MINUTE = 0
 
-channel = bot.get_channel(CHANNEL_ID)
-
-
 async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
     """Returns embed for a race week with a 'race week' image."""
     title, des = f1.get_all_week_info(date_)  # title and description for the embed message
@@ -84,7 +81,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         file = discord.File(race_week_image, filename="race.png")
         embed = await get_race_week_embed(date_)
 
-        message = await channel.send(file=file, embed=embed)
+        message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
         if emoji_race_week is not None:
             await message.add_reaction(emoji_race_week)
 
@@ -94,7 +91,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         no_race_week_image = util.get_json_data("no_race_week_image")
         file = discord.File(no_race_week_image, filename="norace.png")
 
-        message = await channel.send(file=file, embed=embed)
+        message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
         if emoji_no_race_week is not None:
             await message.add_reaction(emoji_no_race_week)
 
@@ -113,7 +110,7 @@ async def get_previous_bot_message(max_messages=15) -> Union[discord.Message, No
     """Returns the discord.Message for the last message the bot sent, checks up to given
     number of previous messages."""
     bot_id = util.get_json_data("bot_id")  # the bots user id to check the previous messages
-    prev_msgs = await channel.history(limit=max_messages).flatten()  # list of prev messages
+    prev_msgs = await bot.get_channel(CHANNEL_ID).history(limit=max_messages).flatten()  # list of prev messages
     prev_ids = [str(msg.author.id) for msg in prev_msgs]  # list of the user ids for all prev messages
 
     if bot_id in prev_ids:
@@ -218,13 +215,15 @@ async def update(ctx) -> None:
 
 @bot.command()
 async def ping(ctx) -> None:
-    """Bot responds "pong"."""
-    await channel.send("Pong.")
+    """Bot responds "pong" in same channel."""
+    msg_channel_id = ctx.message.channel.id
+    await bot.get_channel(msg_channel_id).send("Pong")
     print("Pong", datetime.today(), "UTC")
 
 @bot.event
 async def on_ready() -> None:
     """On bot ready, start the status loop."""
+    channel = bot.get_channel(CHANNEL_ID)
     bot.loop.create_task(status())  # start the loop
     print("PIERRRE GASLYYYY!")
 
