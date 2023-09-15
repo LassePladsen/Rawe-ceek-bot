@@ -144,10 +144,17 @@ async def execute_week_embed() -> None:
     else:
         race_week_emoji = util.get_json_data("race_week_emoji")
         no_race_week_emoji = util.get_json_data("no_race_week_emoji")
+        attempts = 0
+        max_attempts = 30
         while True:
             try:
                 await send_week_embed(today, race_week_emoji, no_race_week_emoji)
             except ValueError:  # f1.is_f1_race_week() returned false when it is a race week for some reason...
+                attempts += 1
+                if attempts >= max_attempts:  # send crash msg in test channel and crash
+                    await bot.get_channel(int(util.get_json_data("test_channel_id"))).send("Update done.")
+                    raise RuntimeError("Max attempts reached in bot.execute_week_embed()"
+                                       " for trying bot.send_week_embed()...")
                 wait = 60  # a minute
                 print(f"ValueError caught from send_week_embed(), waiting {wait} seconds...")
                 await sleep(wait)
