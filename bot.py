@@ -219,7 +219,7 @@ async def update(ctx) -> None:
 async def ping(ctx) -> None:
     """Bot responds "pong"."""
     await channel.send("Pong.")
-    print("Ping command executed", datetime.today(), "UTC")
+    print("Pong", datetime.today(), "UTC")
 
 @bot.event
 async def on_ready() -> None:
