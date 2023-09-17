@@ -64,8 +64,6 @@ async def update_status_message() -> None:
     else:
         # Set bot satus message to no rawe ceek
         until_next_race = f1.until_next_race_week(today)
-        if until_next_race == 0:
-            until_next_race = str(until_next_race) + " week"
         if until_next_race == 1:
             until_next_race = str(until_next_race) + " week"
         else:
