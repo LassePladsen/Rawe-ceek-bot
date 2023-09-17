@@ -55,7 +55,7 @@ async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed:
 
 async def update_status_message() -> None:
     """Updates the bots status message with either a message depending on if its a race week or not."""
-    today = datetime.now().date()()
+    today = datetime.now().date()
     if f1.is_f1_race_week(today):
         # Set bot satus message to rawe ceek
         activity = discord.Activity(type=discord.ActivityType.watching, name="the RACE WEEK!")
@@ -64,6 +64,8 @@ async def update_status_message() -> None:
     else:
         # Set bot satus message to no rawe ceek
         until_next_race = f1.until_next_race_week(today)
+        if until_next_race == 0:
+            until_next_race = str(until_next_race) + " week"
         if until_next_race == 1:
             until_next_race = str(until_next_race) + " week"
         else:
@@ -121,7 +123,7 @@ async def get_previous_bot_message(max_messages=15) -> Union[discord.Message, No
 async def execute_week_embed() -> None:
     """Checks if the bot has sent an embed the week of the given date.
     If so then update and edit the embed, if not then send a new embed."""
-    today = datetime.now().date()()
+    today = datetime.now().date()
 
     # Check if new year, archive f2 calendar json
     if "01-01" in str(today):
