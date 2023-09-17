@@ -1,5 +1,5 @@
 from asyncio import sleep, get_event_loop
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Union
 
 import discord
@@ -55,8 +55,8 @@ async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed:
 
 async def update_status_message() -> None:
     """Updates the bots status message with either a message depending on if its a race week or not."""
-    today = date.today()
-    if f1.is_f1_race_week(str(today)):
+    today = datetime.now().date()()
+    if f1.is_f1_race_week(today):
         # Set bot satus message to rawe ceek
         activity = discord.Activity(type=discord.ActivityType.watching, name="the RACE WEEK!")
         await bot.change_presence(status=discord.Status.online, activity=activity)
@@ -121,7 +121,7 @@ async def get_previous_bot_message(max_messages=15) -> Union[discord.Message, No
 async def execute_week_embed() -> None:
     """Checks if the bot has sent an embed the week of the given date.
     If so then update and edit the embed, if not then send a new embed."""
-    today = date.today()
+    today = datetime.now().date()()
 
     # Check if new year, archive f2 calendar json
     if "01-01" in str(today):
@@ -143,24 +143,7 @@ async def execute_week_embed() -> None:
     else:
         race_week_emoji = util.get_json_data("race_week_emoji")
         no_race_week_emoji = util.get_json_data("no_race_week_emoji")
-        attempts = 0
-        max_attempts = 30
-        while True:
-            try:
-                await send_week_embed(today, race_week_emoji, no_race_week_emoji)
-            except ValueError:  # f1.is_f1_race_week() returned false when it is a race week for some reason...
-                attempts += 1
-                if attempts >= max_attempts:  # send crash msg in test channel and crash
-                    await bot.get_channel(int(util.get_json_data("test_channel_id"))).send("Update done.")
-                    raise RuntimeError("Max attempts reached in bot.execute_week_embed()"
-                                       " for trying bot.send_week_embed()...")
-                wait = 60  # a minute
-                print(f"ValueError caught from send_week_embed(), waiting {wait} seconds...")
-                await sleep(wait)
-                print("Trying send_week_embed() again...")
-                await send_week_embed(today, race_week_emoji, no_race_week_emoji)
-            else:
-                return
+        await send_week_embed(today, race_week_emoji, no_race_week_emoji)
 
 
 async def status(print_msg=True) -> None:
@@ -209,7 +192,6 @@ async def update(ctx) -> None:
         await sleep(2)
         await reply.delete()
         await ctx.message.delete()
-
     print("Update command executed", datetime.today(), "UTC")
 
 
@@ -223,7 +205,6 @@ async def ping(ctx) -> None:
 @bot.event
 async def on_ready() -> None:
     """On bot ready, start the status loop."""
-    channel = bot.get_channel(CHANNEL_ID)
     bot.loop.create_task(status())  # start the loop
     print("PIERRRE GASLYYYY!")
 
