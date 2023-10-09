@@ -96,11 +96,6 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         race_week_image = util.get_json_data("race_week_image")
         file = discord.File(race_week_image, filename="race.png")
         embed = await get_race_week_embed(date_)
-        if not embed:  # no embed returned
-            logging.error("send_week_embed(): No embed returned for race week from get_race_week_embed()."
-                          " sending no embed.")
-            return
-
         message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
         if emoji_race_week is not None:
             await message.add_reaction(emoji_race_week)
@@ -126,10 +121,6 @@ async def edit_week_embed(date_: datetime.date):
     message = await get_previous_bot_message()
     if f1.is_f1_race_week(date_):
         new_embed = await get_race_week_embed(date_)
-        if not new_embed:
-            logging.error("edit_week_embed(): No embed returned for race week from get_race_week_embed()."
-                          " editing no embed.")
-            return
     else:
         new_embed = await get_no_race_week_embed(date_)
         if not new_embed:
