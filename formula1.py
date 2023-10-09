@@ -1,5 +1,5 @@
 import calendar
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Union
 
 import fastf1  # f1 api
@@ -69,9 +69,11 @@ def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
 
 def is_f1_race_week(date_: Union[str, datetime.date]) -> bool:
     """Boolean return for if the given date is a f1 race week."""
-    sunday = util.get_sunday_date_str(date_)
-    remaining_dates = get_remaining_dates(date_)
-    return sunday in remaining_dates
+    count = until_next_race_week(date_)
+    if count == 0:
+        return True
+    else:
+        return False
 
 
 def is_sprint_week(event: fastf1.events.Event) -> bool:
@@ -139,24 +141,15 @@ def get_event_info(event: fastf1.events.Event, upper_case=True, event_discord_fo
 def until_next_race_week(date_: datetime.date) -> int:
     """Returns integer of how many weeks until next race week from given date."""
     dates = get_remaining_dates(date_)
-    sunday = util.get_sunday_date_str(date_)
-    if sunday in dates:
-        return 0
+    sunday = util.get_sunday_date_object(date_)
+    saturday = sunday - timedelta(days=1)  # CHECK BOTH SUNDAY AND SATURDAY, sometimes f1 schedules messes up
 
+    # Iterate through remaining event dates and count until found the given date's sunday event date
     counter = 0
-    while sunday not in dates:
+    while str(sunday) not in dates and str(saturday) not in dates:
         # Increase week by 1 and check again
-        sunday = sunday[:-2] + str(int(sunday[-2:]) + 7)
-
-        # Roll over to next month if day number exceeds days in the given month:
-        days_in_month = calendar.monthrange(date_.year, date_.month)[1]
-        if int(sunday[-2:]) > days_in_month:
-            # Find new day number
-            days_exceeded = int(sunday[-2:]) - days_in_month
-            new_day = util.day_string_formatting(days_exceeded)  # format day number
-            sunday = sunday[:-2] + new_day  # roll to new day number
-
-            sunday = sunday.replace(str(date_.month), str(date_.month + 1))
+        sunday += timedelta(weeks=1)
+        saturday = sunday - timedelta(days=1)
         counter += 1
     return counter
 
