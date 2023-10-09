@@ -19,7 +19,7 @@ template_discord_data.json' is the default key strings used.
 
 ## Requirements
 
-- Python >= 3.9.0.
+- Python >= 3.10.0.
 - See requirements.txt.
 
 ## Running
