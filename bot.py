@@ -44,7 +44,7 @@ async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
     return embed
 
 
-async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed | None:
+async def get_no_race_week_embed(date_: datetime.date) -> Union[discord.Embed, None]:
     """Returns embed for a non race week with a 'no race week' image. Returns None if something messes up
     and there actually is no race week found."""
     week_count = f1.until_next_race_week(date_)
