@@ -3,24 +3,38 @@ from datetime import datetime, timedelta
 from typing import Union
 
 import discord
+import logging
 from discord.ext import commands
 
 import formula1 as f1
 import formula2 as f2
 import util
 
+# Logging file config
+logging.basicConfig(
+        level=logging.DEBUG,
+        format='(%(asctime)s): %(message)s',
+        filename="bot.log",
+        filemode="a",
+        datefmt="%y/%m/%d %H:%M:%S"
+)
+
+# Discord bot permissions
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
+# Startup check
 loop = get_event_loop()
 loop.run_until_complete(util.startup_check())
-# Discord Channel ID for the bot to work
+
+# Discord Channel ID for the bot to work in
 CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
 SCHEDULED_HOUR = 5
 SCHEDULED_MINUTE = 0
+
 
 async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
     """Returns embed for a race week with a 'race week' image."""
@@ -30,12 +44,14 @@ async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
     return embed
 
 
-async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed:
-    """Returns embed for a non race week with a 'no race week' image."""
+async def get_no_race_week_embed(date_: datetime.date) -> discord.Embed | None:
+    """Returns embed for a non race week with a 'no race week' image. Returns None if something messes up
+    and there actually is no race week found."""
     week_count = f1.until_next_race_week(date_)
     if week_count == 0:
-        raise ValueError("Count until next race is zero,"
-                         " meaning there is a race this week. Can't return a no_race_week_embed.")
+        logging.error("bot.get_no_race_week_embed(): Count until next race is zero,"
+                      " meaning there is a race this week. Can't return a no_race_week_embed, returning None.")
+        return
     elif week_count == 1:
         title = str(week_count) + " uke til neste rawe ceek..."  # title for embed message
 
@@ -80,6 +96,10 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         race_week_image = util.get_json_data("race_week_image")
         file = discord.File(race_week_image, filename="race.png")
         embed = await get_race_week_embed(date_)
+        if not embed:  # no embed returned
+            logging.error("send_week_embed(): No embed returned for race week from get_race_week_embed()."
+                          " sending no embed.")
+            return
 
         message = await bot.get_channel(CHANNEL_ID).send(file=file, embed=embed)
         if emoji_race_week is not None:
@@ -88,6 +108,11 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
     else:  # if not race week then post no. weeks until next race week
         # Count how many weeks until next race week
         embed = await get_no_race_week_embed(date_)
+        if not embed:  # no embed returned
+            logging.error("send_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
+                          " sending no embed.")
+            return
+
         no_race_week_image = util.get_json_data("no_race_week_image")
         file = discord.File(no_race_week_image, filename="norace.png")
 
@@ -101,8 +126,16 @@ async def edit_week_embed(date_: datetime.date):
     message = await get_previous_bot_message()
     if f1.is_f1_race_week(date_):
         new_embed = await get_race_week_embed(date_)
+        if not new_embed:
+            logging.error("edit_week_embed(): No embed returned for race week from get_race_week_embed()."
+                          " editing no embed.")
+            return
     else:
         new_embed = await get_no_race_week_embed(date_)
+        if not new_embed:
+            logging.error("edit_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
+                          " editing no embed.")
+            return
     await message.edit(embed=new_embed)
 
 
@@ -201,6 +234,7 @@ async def ping(ctx) -> None:
     msg_channel_id = ctx.message.channel.id
     await bot.get_channel(msg_channel_id).send("Pong")
     print("Pong", datetime.today(), "UTC")
+
 
 @bot.event
 async def on_ready() -> None:
