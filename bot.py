@@ -10,6 +10,15 @@ import formula1 as f1
 import formula2 as f2
 import util
 
+# Discord Channel ID for the bot to work in
+CHANNEL_ID = int(util.get_json_data("channel_id"))
+
+# Status run timing (24 hour format)
+# NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
+SCHEDULED_HOUR = 5
+SCHEDULED_MINUTE = 0
+
+
 # Create logging to a bot.log file
 Logger = logging.getLogger(__name__)
 fh = logging.FileHandler("bot.log")  # log to logfile
@@ -25,15 +34,6 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 # Startup check
 loop = get_event_loop()
 loop.run_until_complete(util.startup_check())
-
-# Discord Channel ID for the bot to work in
-CHANNEL_ID = int(util.get_json_data("channel_id"))
-
-# Status run timing (24 hour format)
-# NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-SCHEDULED_HOUR = 5
-SCHEDULED_MINUTE = 0
-
 
 async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
     """Returns embed for a race week with a 'race week' image."""
@@ -170,32 +170,39 @@ async def execute_week_embed() -> None:
 
 
 async def status() -> None:
-    """Runs execute_week_embed() and
-    update_status_message() functions every 24 hours at scheduled time."""
+    """Updates weekly embed and status message, calling execute_week_embed() and
+    update_status_message(), every 24 hours at scheduled time."""
 
-    await update_status_message()  # start with status message, then wait until scheduled time to send embed
+    # First update status message, then wait until scheduled time to execite weekly embed
+    await update_status_message()
     now = datetime.now()
-    future = datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE)
+
+    scheduled_time = datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE)
     while True:
         # Wait to run until scheduled time
         now = datetime.now()
-        if now > datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE):
-            future += timedelta(days=1)  # if past scheduled time, wait until next day
-        await sleep((future - now).seconds)
+        if now > scheduled_time:
+            scheduled_time += timedelta(days=1)  # if past scheduled time, wait until next day
+        seconds = (scheduled_time - now).seconds
+        Logger.info(f"Sleeping '{seconds}' seconds until '{scheduled_time}'")
+        await sleep(seconds)
 
+        # Now execute loop:
         f2.store_calendar_to_json(f2.scrape_calendar())  # update the f2 calendar json
 
+        # Weekly embed
         await execute_week_embed()
 
-        # Lastly update the status message
+        # Status message
         await update_status_message()
 
-        # Log loop
-        logmsg = "Loop complete", datetime.today(), "UTC"
+        # Log this status loop
+        logmsg = "Status loop complete", datetime.today(), "UTC"
         print(logmsg)
         Logger.info(logmsg)
 
-        future += timedelta(days=1)  # add 24 hours for next loop
+        # add 24 hours for next loop schedule run time
+        scheduled_time += timedelta(days=1)
 
 
 @bot.command(aliases=["upd"])
