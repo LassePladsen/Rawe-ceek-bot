@@ -10,14 +10,13 @@ import formula1 as f1
 import formula2 as f2
 import util
 
-# Logging file config
-logging.basicConfig(
-        level=logging.DEBUG,
-        format='(%(asctime)s): %(message)s',
-        filename="bot.log",
-        filemode="a",
-        datefmt="%y/%m/%d %H:%M:%S"
-)
+# Create logging to a bot.log file
+Logger = logging.getLogger(__name__)
+fh = logging.FileHandler("bot.log")  # log to logfile
+fh.setLevel(logging.INFO)
+fh.setFormatter(logging.Formatter('[%(asctime)s - %(levelname)s] - %(message)s'))
+Logger.addHandler(fh)
+
 
 # Discord bot permissions
 intents = discord.Intents.default()
@@ -49,7 +48,7 @@ async def get_no_race_week_embed(date_: datetime.date) -> Union[discord.Embed, N
     and there actually is no race week found."""
     week_count = f1.until_next_race_week(date_)
     if week_count == 0:
-        logging.error("bot.get_no_race_week_embed(): Count until next race is zero,"
+        Logger.error("bot.get_no_race_week_embed(): Count until next race is zero,"
                       " meaning there is a race this week. Can't return a no_race_week_embed, returning None.")
         return
     elif week_count == 1:
@@ -104,7 +103,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         # Count how many weeks until next race week
         embed = await get_no_race_week_embed(date_)
         if not embed:  # no embed returned
-            logging.error("send_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
+            Logger.error("send_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
                           " sending no embed.")
             return
 
@@ -124,7 +123,7 @@ async def edit_week_embed(date_: datetime.date):
     else:
         new_embed = await get_no_race_week_embed(date_)
         if not new_embed:
-            logging.error("edit_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
+            Logger.error("edit_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
                           " editing no embed.")
             return
     await message.edit(embed=new_embed)
@@ -170,7 +169,7 @@ async def execute_week_embed() -> None:
         await send_week_embed(today, race_week_emoji, no_race_week_emoji)
 
 
-async def status(print_msg=True) -> None:
+async def status() -> None:
     """Runs execute_week_embed() and
     update_status_message() functions every 24 hours at scheduled time."""
 
@@ -191,8 +190,10 @@ async def status(print_msg=True) -> None:
         # Lastly update the status message
         await update_status_message()
 
-        if print_msg:
-            print("Loop complete", datetime.today(), "UTC")
+        # Log loop
+        logmsg = "Loop complete", datetime.today(), "UTC"
+        print(logmsg)
+        Logger.info(logmsg)
 
         future += timedelta(days=1)  # add 24 hours for next loop
 
@@ -216,7 +217,11 @@ async def update(ctx) -> None:
         await sleep(2)
         await reply.delete()
         await ctx.message.delete()
-    print("Update command executed", datetime.today(), "UTC")
+
+    # Log command
+    logmsg = "Update command executed", datetime.today(), "UTC"
+    print(logmsg)
+    Logger.info(logmsg)
 
 
 @bot.command()
