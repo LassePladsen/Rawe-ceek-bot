@@ -184,7 +184,7 @@ async def status() -> None:
         if now > scheduled_time:
             scheduled_time += timedelta(days=1)  # if past scheduled time, wait until next day
         seconds = (scheduled_time - now).seconds
-        logger.info(f"Sleeping {seconds} seconds until '{scheduled_time}'")
+        logger.info(f"Sleeping {seconds} seconds until {scheduled_time}")
         await sleep(seconds)
 
         # Now execute loop:
