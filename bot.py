@@ -20,11 +20,11 @@ SCHEDULED_MINUTE = 0
 
 
 # Create logging to a bot.log file
-Logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 fh = logging.FileHandler("bot.log")  # log to logfile
-fh.setLevel(logging.INFO)
 fh.setFormatter(logging.Formatter('[%(asctime)s - %(levelname)s] - %(message)s'))
-Logger.addHandler(fh)
+logger.addHandler(fh)
+logger.setLevel(logging.INFO)
 
 
 # Discord bot permissions
@@ -48,7 +48,7 @@ async def get_no_race_week_embed(date_: datetime.date) -> Union[discord.Embed, N
     and there actually is no race week found."""
     week_count = f1.until_next_race_week(date_)
     if week_count == 0:
-        Logger.error("bot.get_no_race_week_embed(): Count until next race is zero,"
+        logger.error("bot.get_no_race_week_embed(): Count until next race is zero,"
                       " meaning there is a race this week. Can't return a no_race_week_embed, returning None.")
         return
     elif week_count == 1:
@@ -103,7 +103,7 @@ async def send_week_embed(date_: datetime.date, emoji_race_week=None, emoji_no_r
         # Count how many weeks until next race week
         embed = await get_no_race_week_embed(date_)
         if not embed:  # no embed returned
-            Logger.error("send_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
+            logger.error("send_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
                           " sending no embed.")
             return
 
@@ -123,7 +123,7 @@ async def edit_week_embed(date_: datetime.date):
     else:
         new_embed = await get_no_race_week_embed(date_)
         if not new_embed:
-            Logger.error("edit_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
+            logger.error("edit_week_embed(): No embed returned for no race week from get_no_race_week_embed()."
                           " editing no embed.")
             return
     await message.edit(embed=new_embed)
@@ -184,7 +184,7 @@ async def status() -> None:
         if now > scheduled_time:
             scheduled_time += timedelta(days=1)  # if past scheduled time, wait until next day
         seconds = (scheduled_time - now).seconds
-        Logger.info(f"Sleeping '{seconds}' seconds until '{scheduled_time}'")
+        logger.info(f"Sleeping {seconds} seconds until '{scheduled_time}'")
         await sleep(seconds)
 
         # Now execute loop:
@@ -197,9 +197,9 @@ async def status() -> None:
         await update_status_message()
 
         # Log this status loop
-        logmsg = "Status loop complete", datetime.today(), "UTC"
+        logmsg = f"Status loop complete {datetime.now()} UTC"
         print(logmsg)
-        Logger.info(logmsg)
+        logger.info(logmsg)
 
         # add 24 hours for next loop schedule run time
         scheduled_time += timedelta(days=1)
@@ -226,9 +226,9 @@ async def update(ctx) -> None:
         await ctx.message.delete()
 
     # Log command
-    logmsg = "Update command executed", datetime.today(), "UTC"
+    logmsg = f"Update command executed {datetime.now()} UTC"
     print(logmsg)
-    Logger.info(logmsg)
+    logger.info(logmsg)
 
 
 @bot.command()
@@ -236,7 +236,7 @@ async def ping(ctx) -> None:
     """Bot responds "pong" in same channel."""
     msg_channel_id = ctx.message.channel.id
     await bot.get_channel(msg_channel_id).send("Pong")
-    print("Pong", datetime.today(), "UTC")
+    print("Pong", datetime.now(), "UTC")
 
 
 @bot.event
