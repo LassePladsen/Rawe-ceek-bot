@@ -1,6 +1,6 @@
 # Rawe Ceek bot
 
-Discord bot that sends F1 and F2 session times each monday race week, in Norwegian.
+Discord bot that sends F1 and F2 session times each monday race week, in Norwegian (can easily be changed).
 
 Uses F1 api and scrapes F2 timings from fiaformula2.com.
 Each loop the bot checks if today is a race week, then it checks if it has already posted this week. In this case it
