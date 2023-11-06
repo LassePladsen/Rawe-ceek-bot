@@ -1,9 +1,10 @@
+import logging
 from asyncio import sleep, get_event_loop
 from datetime import datetime, timedelta
 from typing import Union
 
+import schedule
 import discord
-import logging
 from discord.ext import commands
 
 import formula1 as f1
@@ -15,8 +16,7 @@ CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-SCHEDULED_HOUR = 5
-SCHEDULED_MINUTE = 0
+scheduled_time = "05:00"
 
 
 # Create logging to a bot.log file
@@ -33,7 +33,11 @@ bot = commands.Bot(command_prefix="&", intents=intents, case_insensitive=True)
 
 # Startup check
 loop = get_event_loop()
-loop.run_until_complete(util.startup_check())
+try:
+    loop.run_until_complete(util.startup_check())
+except KeyboardInterrupt:
+    loop.close()
+    sys.exit(1)
 
 async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
     """Returns embed for a race week with a 'race week' image."""
@@ -171,23 +175,16 @@ async def execute_week_embed() -> None:
 
 async def status() -> None:
     """Updates weekly embed and status message, calling execute_week_embed() and
-    update_status_message(), every 24 hours at scheduled time."""
+    update_status_message(), every day at scheduled time (global variable). It 
+    does the update once before starting the schedule loop."""
 
-    # First update status message, then wait until scheduled time to execite weekly embed
-    await update_status_message()
-    now = datetime.now()
+    async def status_task():
+        """The task to schedule"""
+        # Log start of task
+        logger.info("Status task starting")
 
-    scheduled_time = datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE)
-    while True:
-        # Wait to run until scheduled time
-        now = datetime.now()
-        if now > scheduled_time:
-            scheduled_time += timedelta(days=1)  # if past scheduled time, wait until next day
-        seconds = (scheduled_time - now).seconds
-        logger.info(f"Sleeping {seconds} seconds until {scheduled_time}")
-        await sleep(seconds)
+        await update_status_message()
 
-        # Now execute loop:
         f2.store_calendar_to_json(f2.scrape_calendar(logger))  # update the f2 calendar json
 
         # Weekly embed
@@ -196,13 +193,21 @@ async def status() -> None:
         # Status message
         await update_status_message()
 
-        # Log this status loop
-        logmsg = f"Status loop complete {datetime.now()} UTC"
-        print(logmsg)
+        # Log end of the task and print to terminal
+        logmsg = "Status task complete"
+        print(logmsg + f" {datetime.now()} UTC")
         logger.info(logmsg)
 
-        # add 24 hours for next loop schedule run time
-        scheduled_time += timedelta(days=1)
+    # Run the task once, then create the schedule loop
+    await status_task()
+
+    # Schedule the status_task to run at the specified time
+    schedule.every().day.at(scheduled_time).do(status_task)
+
+    # Start the scheduling loop
+    while True:
+        schedule.run_pending()
+        await sleep(1)
 
 
 @bot.command(aliases=["upd"])
@@ -226,8 +231,8 @@ async def update(ctx) -> None:
         await ctx.message.delete()
 
     # Log command
-    logmsg = f"Update command executed {datetime.now()} UTC"
-    print(logmsg)
+    logmsg = "Update command executed"
+    print(logmsg + f" {datetime.now()} UTC")
     logger.info(logmsg)
 
 
@@ -243,6 +248,7 @@ async def ping(ctx) -> None:
 async def on_ready() -> None:
     """On bot ready, create the status loop task and print to terminal"""
     bot.loop.create_task(status()) 
+    logger.info(f"Bot ready with {scheduled_time=} in channel {CHANNEL_ID}")
     print("PIERRRE GASLYYYY!")
 
 
