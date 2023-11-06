@@ -7,12 +7,13 @@ import schedule
 import discord
 from discord.ext import commands
 
+
 import formula1 as f1
 import formula2 as f2
 import util
 
 # Discord Channel ID for the bot to work in
-CHANNEL_ID = int(util.get_json_data("test_channel_id"))
+CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
@@ -220,25 +221,45 @@ async def update(ctx) -> None:
     """On recieving update command with the bots prefix, executes the weekly embed send/edit
     with todays updated info. Also updates the status message just incase.
     If the command was not in #bot channel, delete both the command message and the reply message."""
-    f2.store_calendar_to_json(f2.scrape_calendar(logger))  # update the f2 calendar json
-    await execute_week_embed()
-    await update_status_message()
 
-    # send reply message in the same channel
-    msg_channel_id = ctx.message.channel.id
-    reply = await bot.get_channel(msg_channel_id).send("Update done.")
+    # Log start
+    logger.info("Update command starting")
 
-    # if its not in the #bot channel, then delete both the user and bots messages after 2 seconds
-    bot_channel_id = int(util.get_json_data("bot_channel_id"))
-    if msg_channel_id != bot_channel_id:
-        await sleep(2)
-        await reply.delete()
-        await ctx.message.delete()
+    try:
+        f2.store_calendar_to_json(f2.scrape_calendar(logger))  # update the f2 calendar json
+        await execute_week_embed()
+        await update_status_message()
 
-    # Log command
-    logmsg = "Update command executed"
-    print(logmsg + f" {datetime.now()} UTC")
-    logger.info(logmsg)
+        # send reply message in the same channel
+        msg_channel_id = ctx.message.channel.id
+        reply = await bot.get_channel(msg_channel_id).send("Update done.")
+
+        # if its not in the #bot channel, then delete both the user and bots messages after 2 seconds
+        bot_channel_id = int(util.get_json_data("bot_channel_id"))
+        if msg_channel_id != bot_channel_id:
+            await sleep(2)
+            await reply.delete()
+            await ctx.message.delete()
+
+        # Log end
+        logmsg = "Update command executed"
+        print(logmsg + f" {datetime.now()} UTC")
+        logger.info(logmsg)
+
+    # Log error
+    except Exception as e:
+        logger.exception(f"An error occurred in on_ready: {type(e)}: {e}")
+
+
+
+@update.error
+async def update_error(ctx, error):
+    """Send error in channel on recieved update command when it raises an error"""
+    if isinstance(error, commands.CommandError):
+        # Handle command-specific errors
+        await ctx.send("An error occurred during the update command.")
+        logger.error(f"An error occurred during the update command: {type(error)}: {error}")
+
 
 
 @bot.command()
@@ -252,9 +273,14 @@ async def ping(ctx) -> None:
 @bot.event
 async def on_ready() -> None:
     """On bot ready, create the status loop task and print to terminal"""
-    bot.loop.create_task(status()) 
-    logger.info(f"Bot ready with {scheduled_time=} in channel {CHANNEL_ID}")
-    print("PIERRRE GASLYYYY!")
+    try:
+        bot.loop.create_task(status())
+        logger.info(f"Bot ready with {scheduled_time=} in channel {CHANNEL_ID}")
+        print("PIERRRE GASLYYYY!")
+    
+    # Log error
+    except Exception as e:
+        logger.exception(f"An error occurred in on_ready: {type(e)}: {e}")
 
 
 if __name__ == "__main__":
