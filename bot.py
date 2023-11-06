@@ -12,7 +12,7 @@ import formula2 as f2
 import util
 
 # Discord Channel ID for the bot to work in
-CHANNEL_ID = int(util.get_json_data("channel_id"))
+CHANNEL_ID = int(util.get_json_data("test_channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
@@ -183,20 +183,25 @@ async def status() -> None:
         # Log start of task
         logger.info("Status task starting")
 
-        await update_status_message()
+        try:
+            await update_status_message()
 
-        f2.store_calendar_to_json(f2.scrape_calendar(logger))  # update the f2 calendar json
+            f2.store_calendar_to_json(f2.scrape_calendar(logger))  # update the f2 calendar json
 
-        # Weekly embed
-        await execute_week_embed()
+            # Weekly embed
+            await execute_week_embed()
 
-        # Status message
-        await update_status_message()
+            # Status message
+            await update_status_message()
 
-        # Log end of the task and print to terminal
-        logmsg = "Status task complete"
-        print(logmsg + f" {datetime.now()} UTC")
-        logger.info(logmsg)
+            # Log end of the task and print to terminal
+            logmsg = "Status task complete"
+            print(logmsg + f" {datetime.now()} UTC")
+            logger.info(logmsg)
+        
+        # Log exception and continue bot
+        except Exception as e:
+            logger.error(f"An error occured in status_task: {type(e)}: {e}")
 
     # Run the task once, then create the schedule loop
     await status_task()
