@@ -6,3 +6,4 @@ data/discord_data.json
 data/test_f2_calendar.json
 archived_data/archived_test_f2_calendar_2022.json
 bot.log
+*.code-workspace
