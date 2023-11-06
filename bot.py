@@ -241,8 +241,8 @@ async def ping(ctx) -> None:
 
 @bot.event
 async def on_ready() -> None:
-    """On bot ready, start the status loop."""
-    bot.loop.create_task(status())  # start the loop
+    """On bot ready, create the status loop task and print to terminal"""
+    bot.loop.create_task(status()) 
     print("PIERRRE GASLYYYY!")
 
 
