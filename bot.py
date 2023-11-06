@@ -247,4 +247,5 @@ async def on_ready() -> None:
 
 
 if __name__ == "__main__":
+    # Run bot loop
     bot.run(util.get_json_data("bot_token"))
