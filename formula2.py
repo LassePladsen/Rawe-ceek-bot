@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Union
 
 import requests
@@ -10,11 +11,13 @@ from util import (local_time_to_oslo, file_exists, update_f2cal_json, format_dat
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
 
-def scrape_calendar() -> F2CalendarType:
+def scrape_calendar(logger: Union[logging.Logger, None] = None) -> F2CalendarType:
     """
     Scrapes the F2 schedule from the F2 website. Returns a dictionary mapping
     the sunday dates to the event infos.
     All credit goes to ENils1: https://github.com/ENils1
+
+    Optional argument is a logging.Logger to log to.
     """
     f2_events = {}
 
@@ -24,6 +27,13 @@ def scrape_calendar() -> F2CalendarType:
     for i in range(first_race_id, last_race_id + 1):
         url = f'https://www.fiaformula2.com/Results?raceid={i}'
         response = requests.get(url)
+
+        # response is not ok -> skip this race event 
+        if response.status_code != 200:
+            if logger:
+                logger.error(f"formula2.scrape_calendar(): reponse.status_code != 200 for url '{url}', continuing next event.")
+            continue
+
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -67,8 +77,10 @@ def scrape_calendar() -> F2CalendarType:
                     races.append(race)
 
             f2_events[raceday] = [round_number.strip(), country, circuit, date, races]
+
         except AttributeError:  # catch exception for if race weekend has been cancelled
             continue
+
     return f2_events
 
 
