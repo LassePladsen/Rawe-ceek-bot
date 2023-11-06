@@ -184,25 +184,32 @@ async def status() -> None:
         # Log start of task
         logger.info("Status task starting")
 
-        try:
-            await update_status_message()
+        retries = 0
+        while retries < 10:
+            try:
+                await update_status_message()
 
-            f2.store_calendar_to_json(f2.scrape_calendar(logger))  # update the f2 calendar json
+                f2.store_calendar_to_json(f2.scrape_calendar(logger))  # update the f2 calendar json
 
-            # Weekly embed
-            await execute_week_embed()
+                # Weekly embed
+                await execute_week_embed()
 
-            # Status message
-            await update_status_message()
+                # Status message
+                await update_status_message()
 
-            # Log end of the task and print to terminal
-            logmsg = "Status task complete"
-            print(logmsg + f" {datetime.now()} UTC")
-            logger.info(logmsg)
-        
-        # Log exception and continue bot
-        except Exception as e:
-            logger.error(f"An error occured in status_task: {type(e)}: {e}")
+                # Log end of the task and print to terminal
+                logmsg = "Status task complete"
+                print(logmsg + f" {datetime.now()} UTC")
+                logger.info(logmsg)
+                break
+            
+            # Log exception and add a retry after 10 seconds
+            except Exception as e:
+                logger.error(
+                    f"An error occured in status_task ({retry=}): {type(e)}: {e}"
+                    )
+                retries += 1
+                await sleep(10)
 
     # Run the task once, then create the schedule loop
     await status_task()
