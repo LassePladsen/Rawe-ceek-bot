@@ -3,10 +3,8 @@ from asyncio import sleep, get_event_loop
 from datetime import datetime, timedelta
 from typing import Union
 
-import schedule
 import discord
 from discord.ext import commands
-
 
 import formula1 as f1
 import formula2 as f2
@@ -17,7 +15,9 @@ CHANNEL_ID = int(util.get_json_data("test_channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-scheduled_time = "19:03"
+SCHEDULED_HOUR = 5
+SCHEDULED_MINUTE = 0
+
 
 
 # Create logging to a bot.log file
@@ -216,13 +216,18 @@ async def status() -> None:
     # Run the task once, then create the schedule loop
     await status_task()
 
-    # Schedule the status_task to run at the specified time
-    schedule.every().day.at(scheduled_time).do(status_task)
-
     # Start the scheduling loop
+    scheduled_time = datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE)
     while True:
-        schedule.run_pending()
-        await sleep(1)
+         # Wait to run until scheduled time
+        now = datetime.now()
+        if now > scheduled_time:
+            scheduled_time += timedelta(days=1)  # if past scheduled time, wait until next day
+
+        seconds = (scheduled_time - now).seconds
+        logger.info(f"Sleeping {seconds} seconds until {scheduled_time}")
+        await sleep(seconds)
+
 
 
 @bot.command(aliases=["upd"])
