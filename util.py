@@ -54,8 +54,6 @@ def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
 
 def get_sunday_date_object(date_: Union[str, datetime.date]) -> datetime.date:
     """Returns a datetime.date object with sundays date of the same week as the given date."""
-    if isinstance(date_, str):
-        return get_date_object(date_)
     return get_date_object(get_sunday_date_str(date_))
 
 

@@ -35,8 +35,8 @@ def get_next_week_event(date_: datetime.date) -> fastf1.events.Event:
     """Returns the next race week event from a given date."""
     dates = get_remaining_dates(date_)
     sunday = util.get_sunday_date_str(date_)
-
     date_str = str(date_)
+
     if is_f1_race_week(date_str):
         return get_week_event(date_str)
 
@@ -138,7 +138,7 @@ def get_event_info(event: fastf1.events.Event, upper_case=True, event_discord_fo
         return f"{name} {out_date}\n"
 
 
-def until_next_race_week(date_: datetime.date) -> int:
+def until_next_race_week(date_: Union[str, datetime.date]) -> int:
     """Returns integer of how many weeks until next race week from given date."""
     dates = get_remaining_dates(date_)
     sunday = util.get_sunday_date_object(date_)

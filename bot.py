@@ -13,11 +13,11 @@ import formula2 as f2
 import util
 
 # Discord Channel ID for the bot to work in
-CHANNEL_ID = int(util.get_json_data("channel_id"))
+CHANNEL_ID = int(util.get_json_data("test_channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-scheduled_time = "18:05"
+scheduled_time = "19:03"
 
 
 # Create logging to a bot.log file
@@ -54,7 +54,7 @@ async def get_no_race_week_embed(date_: datetime.date) -> Union[discord.Embed, N
     week_count = f1.until_next_race_week(date_)
     if week_count == 0:
         logger.error("bot.get_no_race_week_embed(): Count until next race is zero,"
-                      " meaning there is a race this week. Can't return a no_race_week_embed, returning None.")
+                      " meaning there is a race this week. Can't return a no_race_week_embed, returning None early.")
         return
     elif week_count == 1:
         title = str(week_count) + " uke til neste rawe ceek..."  # title for embed message
@@ -139,6 +139,10 @@ async def get_previous_bot_message(max_messages=15) -> Union[discord.Message, No
     number of previous messages."""
     bot_id = util.get_json_data("bot_id")  # the bots user id to check the previous messages
     prev_msgs = await bot.get_channel(CHANNEL_ID).history(limit=max_messages).flatten()  # list of prev messages
+    if not prev_msgs:
+        logger.warning("get_previous_bot_message(): No previous messages found in channel, returning None early.")
+        return
+
     prev_ids = [str(msg.author.id) for msg in prev_msgs]  # list of the user ids for all prev messages
 
     if bot_id in prev_ids:
