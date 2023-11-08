@@ -15,8 +15,8 @@ CHANNEL_ID = int(util.get_json_data("test_channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-SCHEDULED_HOUR = 5
-SCHEDULED_MINUTE = 0
+scheduled_hour = 5
+scheduled_minute = 0
 
 
 
@@ -217,7 +217,8 @@ async def status() -> None:
     await status_task()
 
     # Start the scheduling loop
-    scheduled_time = datetime(now.year, now.month, now.day, SCHEDULED_HOUR, SCHEDULED_MINUTE)
+    now = datetime.now()
+    scheduled_time = datetime(now.year, now.month, now.day, scheduled_hour, scheduled_minute)
     while True:
          # Wait to run until scheduled time
         now = datetime.now()
@@ -227,7 +228,8 @@ async def status() -> None:
         seconds = (scheduled_time - now).seconds
         logger.info(f"Sleeping {seconds} seconds until {scheduled_time}")
         await sleep(seconds)
-
+        logger.info("Waking up")
+        await status_task()
 
 
 @bot.command(aliases=["upd"])
@@ -289,7 +291,15 @@ async def on_ready() -> None:
     """On bot ready, create the status loop task and print to terminal"""
     try:
         bot.loop.create_task(status())
-        logger.info(f"Bot ready with {scheduled_time=} in channel {CHANNEL_ID}")
+
+        hour = str(scheduled_hour)
+        if len(hour) == 1:
+            hour = "0" + hour
+        minute = str(scheduled_minute)
+        if len(minute) == 1:
+            minute = "0" + minute
+
+        logger.info(f"Bot ready with scheduled_time={hour}:{minute} in channel {CHANNEL_ID}")
         print("PIERRRE GASLYYYY!")
     
     # Log error
