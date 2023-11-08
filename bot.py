@@ -205,9 +205,7 @@ async def status() -> None:
             
             # Log exception and add a retry after 10 seconds
             except Exception as e:
-                logger.error(
-                    f"An error occured in status_task ({retry=}): {type(e)}: {e}"
-                    )
+                logger.error(f"An error occured in status_task ({retries=}): {type(e)}: {e}")
                 retries += 1
                 await sleep(10)
 
