@@ -29,9 +29,9 @@ def scrape_calendar(logger: Union[logging.Logger, None] = None) -> F2CalendarTyp
         response = requests.get(url)
 
         # response is not ok -> skip this race event 
-        if response.status_code != 200:
+        if not 200 <= response.status_code <= 300:
             if logger:
-                logger.error(f"formula2.scrape_calendar(): reponse.status_code != 200 for url '{url}', continuing next event.")
+                logger.error(f"formula2.scrape_calendar(): reponse.status_code not in [200, 300] for url '{url}', continuing next event.")
             continue
 
 
