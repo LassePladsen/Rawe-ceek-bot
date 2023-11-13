@@ -8,52 +8,70 @@ import numpy as np
 import util
 from formula2 import extract_days
 
-fastf1.set_log_level('ERROR')  # lower log level to remove "default cache enabled" warning
+fastf1.set_log_level(
+    "ERROR"
+)  # lower log level to remove "default cache enabled" warning
 
 
-def get_week_event(date_: Union[str, datetime.date]) -> Union[fastf1.events.Event, None]:
+def get_week_event(
+    date_: Union[str, datetime.date]
+) -> Union[fastf1.events.Event, None]:
     """Returns the fastf1 event object for the week of the given date.
     Returns None if there is no event in that week.
     Input date must be a datetime.date object."""
+
     if isinstance(date_, str):
         date_ = util.get_date_object(date_)
-    sunday_date = util.get_sunday_date_str(date_)
+
+    sunday = util.get_sunday_date_object(date_)
+    saturday = str(sunday - timedelta(days=1))
+    sunday = str(sunday)
 
     today = date.today()
     race_schedule = fastf1.get_event_schedule(today.year, include_testing=False)
 
     race_dates = np.asarray(race_schedule["EventDate"].to_string(index=False).split())
-    if sunday_date in race_dates:
-        race_index = np.where(sunday_date == race_dates)[0][0] + 1
+
+    if sunday in race_dates:
+        race_index = np.where(sunday == race_dates)[0][0] + 1
         return fastf1.get_event(date_.year, race_index)
 
-    else:  # If the given date is not a race week
+    elif saturday in race_dates:
+        race_index = np.where(saturday == race_dates)[0][0] + 1
+        return fastf1.get_event(date_.year, race_index)
+
+    else:  # week event not found
         return None
 
 
 def get_next_week_event(date_: datetime.date) -> fastf1.events.Event:
     """Returns the next race week event from a given date."""
     dates = get_remaining_dates(date_)
-    sunday = util.get_sunday_date_str(date_)
+
+    # Check if no dates remaining
+    assert dates, f"get_next_week_event(): No remaining dates found for date: {date_}"
+
+    sunday = util.get_sunday_date_object(date_)
+    saturday = sunday - timedelta(days=1)  # sometimes event date is saturday
     date_str = str(date_)
 
     if is_f1_race_week(date_str):
         return get_week_event(date_str)
 
-    while sunday not in dates:
+    for _ in range(60):
+        print(sunday, saturday)
+        if sunday in dates:
+            return get_week_event(sunday)
+        if saturday in dates:
+            return get_week_event(saturday)
+
         # Increase week by 1 and check again
-        sunday = sunday[:-2] + str(int(sunday[-2:]) + 7)
+        sunday -= timedelta(weeks=1)
 
-        # Roll over to next month if day number exceeds days in the given month:
-        days_in_month = calendar.monthrange(date_.year, date_.month)[1]
-        if int(sunday[-2:]) > days_in_month:
-            # Find new day number
-            days_exceeded = int(sunday[-2:]) - days_in_month
-            new_day = util.day_string_formatting(days_exceeded)  # format day number
-            sunday = sunday[:-2] + new_day  # roll to new day number
-
-            sunday = sunday.replace(str(date_.month), str(date_.month + 1))
-    return get_week_event(util.get_date_object(sunday))
+    # Not found in 60 tries
+    raise ValueError(
+        f"get_next_week_event(): No next week event found for date: {date_}"
+    )
 
 
 def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
@@ -62,8 +80,12 @@ def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
         date_ = util.get_date_object(date_)
     dt = datetime.combine(date_, datetime.min.time())
     remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
-    dates = str(remaining_schedule["EventDate"]).split("\n")  # get list of column strings
-    dates = [i.split(" ")[-1] for i in dates]  # seperate the dates in the string with column numbers
+    dates = str(remaining_schedule["EventDate"]).split(
+        "\n"
+    )  # get list of column strings
+    dates = [
+        i.split(" ")[-1] for i in dates
+    ]  # seperate the dates in the string with column numbers
     return dates
 
 
@@ -85,9 +107,11 @@ def is_sprint_week(event: fastf1.events.Event) -> bool:
         return False
 
 
-def sort_sessions_by_day(event: fastf1.events.Event) -> dict[str, list[fastf1.core.Session]]:
+def sort_sessions_by_day(
+    event: fastf1.events.Event,
+) -> dict[str, list[fastf1.core.Session]]:
     """Returns a dictionary mapping days to list containing all f1 fastf1.Session objects
-     for the corresponding days"""
+    for the corresponding days"""
     session_days = {"Friday": [], "Saturday": [], "Sunday": []}
 
     q_session = event.get_qualifying()
@@ -110,7 +134,9 @@ def sort_sessions_by_day(event: fastf1.events.Event) -> dict[str, list[fastf1.co
     return session_days
 
 
-def get_event_info(event: fastf1.events.Event, upper_case=True, event_discord_format="**") -> str:
+def get_event_info(
+    event: fastf1.events.Event, upper_case=True, event_discord_format="**"
+) -> str:
     """Returns name and date for given race event.
     Supports discord formatting given as optional argument."""
     name = event["EventName"]
@@ -142,7 +168,9 @@ def until_next_race_week(date_: Union[str, datetime.date]) -> int:
     """Returns integer of how many weeks until next race week from given date."""
     dates = get_remaining_dates(date_)
     sunday = util.get_sunday_date_object(date_)
-    saturday = sunday - timedelta(days=1)  # CHECK BOTH SUNDAY AND SATURDAY, sometimes f1 schedules messes up
+    saturday = sunday - timedelta(
+        days=1
+    )  # CHECK BOTH SUNDAY AND SATURDAY, sometimes f1 schedules messes up
 
     # Iterate through remaining event dates and count until found the given date's sunday event date
     counter = 0
@@ -154,13 +182,19 @@ def until_next_race_week(date_: Union[str, datetime.date]) -> int:
     return counter
 
 
-def get_all_week_info(date_: Union[str, datetime.date], weeks_left: bool = True,
-                      language: str = "norwegian") -> tuple[str, str]:
+def get_all_week_info(
+    date_: Union[str, datetime.date],
+    weeks_left: bool = True,
+    language: str = "norwegian",
+) -> tuple[str, str]:
     """Returns two strings containing title and description for sending in discord."""
     if isinstance(date_, str):
         date_ = util.get_date_object(date_)
 
     event = get_week_event(date_)
+
+    assert event is not None, f"get_all_week_info(): no event found for date: {date_}"
+
     f1_days = sort_sessions_by_day(event)
     f2_calendar = util.extract_json_data()
     f2_days = extract_days(event, f2_calendar)
@@ -177,11 +211,14 @@ def get_all_week_info(date_: Union[str, datetime.date], weeks_left: bool = True,
     return eventtitle, eventinfo
 
 
-def get_day_sessions(event: fastf1.events.Event,
-                     day: str, f2_event: dict[str, list[list[str]]],
-                     f1_event: dict[str, list[fastf1.core.Session]],
-                     time_sort: bool = True,
-                     discord_day_format: str = "__"):
+def get_day_sessions(
+    event: fastf1.events.Event,
+    day: str,
+    f2_event: dict[str, list[list[str]]],
+    f1_event: dict[str, list[fastf1.core.Session]],
+    time_sort: bool = True,
+    discord_day_format: str = "__",
+):
     """Returns string containing category and time for all F1 and F2 sessions for a given day.
     If 'time_sort' sort the print by time instead of as F2 sessions -> F1 sessions, defaults to true.
     """
@@ -223,8 +260,12 @@ def get_day_sessions(event: fastf1.events.Event,
                     tbc_sessions.append(f"{title}: {time}")
                 else:  # now sort the sessions by hour
                     hour = int(time.split(":")[0])
-                    if timing_dict.get(hour) is not None:  # check if there already is a session on the same hour
-                        timing_dict[hour + 1] = f"{title}: {time}"  # then add it as the next hour instead
+                    if (
+                        timing_dict.get(hour) is not None
+                    ):  # check if there already is a session on the same hour
+                        timing_dict[
+                            hour + 1
+                        ] = f"{title}: {time}"  # then add it as the next hour instead
                     else:  # if not then add it as the hour
                         timing_dict[hour] = f"{title}: {time}"
 
@@ -244,7 +285,9 @@ def get_day_sessions(event: fastf1.events.Event,
                 hour = int(out_time.split(":")[0])
                 timing_dict[hour] = f"{title}: {out_time}"
 
-        output = discord_day_format + daytitle.capitalize() + discord_day_format[::-1] + "\n"
+        output = (
+            discord_day_format + daytitle.capitalize() + discord_day_format[::-1] + "\n"
+        )
 
         # Now first print the F2 sessions which have TBC start times
         if tbc_sessions:
@@ -259,7 +302,9 @@ def get_day_sessions(event: fastf1.events.Event,
             output += timing_dict[hour] + "\n"
 
     else:  # dont time sort
-        output = discord_day_format + daytitle.capitalize() + discord_day_format[::-1] + "\n"
+        output = (
+            discord_day_format + daytitle.capitalize() + discord_day_format[::-1] + "\n"
+        )
         # Secondly print all f2 sessions that day
         if f2_day:
             for name, time in f2_day:
@@ -290,9 +335,11 @@ def get_day_sessions(event: fastf1.events.Event,
     return output
 
 
-def get_all_days(event: fastf1.events.Event,
-                 f2_days: dict[str, list[list[str]]],
-                 f1_days: dict[str, list[fastf1.core.Session]]):
+def get_all_days(
+    event: fastf1.events.Event,
+    f2_days: dict[str, list[list[str]]],
+    f1_days: dict[str, list[fastf1.core.Session]],
+):
     """Returns a string containing all sessions for each day for a given event."""
     output = ""
 

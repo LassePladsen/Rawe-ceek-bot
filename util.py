@@ -48,7 +48,9 @@ def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
         new_day = day_string_formatting(str(days_exceeded))  # format day number
         date_sunday = date_sunday[:-2] + new_day  # roll to new day number
 
-        date_sunday = date_sunday.replace(str(date_.month), str(date_.month + 1))  # roll to next month
+        date_sunday = date_sunday.replace(
+            str(date_.month), str(date_.month + 1)
+        )  # roll to next month
     return date_sunday
 
 
@@ -61,48 +63,148 @@ def month_index_to_name(monthindex: int, language: str = "English") -> str:
     """Converts a index to the corresponding month name. Defaults to English,
     but also supports Norwegian."""
     if language == "English":
-        months = ["January", "February", "March", "April", "May", "June", "July",
-                  "August", "September", "October", "November", "December"]
+        months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ]
     elif language == "Norwegian":
-        months = ["Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli",
-                  "August", "September", "Oktober", "November", "Desember"]
+        months = [
+            "Januar",
+            "Februar",
+            "Mars",
+            "April",
+            "Mai",
+            "Juni",
+            "Juli",
+            "August",
+            "September",
+            "Oktober",
+            "November",
+            "Desember",
+        ]
 
     else:  # Fallback to English
-        months = ["January", "February", "March", "April", "May", "June", "July",
-                  "August", "September", "October", "November", "December"]
+        months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ]
     return months[monthindex - 1]
 
 
 def month_name_to_index(monthname: str) -> int:
     """Converts an english month name to the corresponding index."""
-    months = ["January", "February", "March", "April", "May", "June", "July",
-              "August", "September", "October", "November", "December"]
+    months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ]
     return months.index(monthname)
 
 
 def month_to_norwegian(month: str, caps: bool = True) -> str:
     """Translates month name from english to norwegian names, defaults to using caps letters."""
     if caps:
-        no_months = ["JANUAR", "FEBRUAR", "MARS", "APRIL", "MAI", "JUNI", "JULI",
-                     "AUGUST", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"]
+        no_months = [
+            "JANUAR",
+            "FEBRUAR",
+            "MARS",
+            "APRIL",
+            "MAI",
+            "JUNI",
+            "JULI",
+            "AUGUST",
+            "SEPTEMBER",
+            "OKTOBER",
+            "NOVEMBER",
+            "DESEMBER",
+        ]
     else:
-        no_months = ["Januar", "Februar", "Mars", "April", "Mai", "Juni", "Juli",
-                     "August", "September", "Oktober", "November", "Desember"]
-    en_months = ["january", "february", "march", "april", "may", "june", "july",
-                 "august", "september", "october", "november", "december"]
+        no_months = [
+            "Januar",
+            "Februar",
+            "Mars",
+            "April",
+            "Mai",
+            "Juni",
+            "Juli",
+            "August",
+            "September",
+            "Oktober",
+            "November",
+            "Desember",
+        ]
+    en_months = [
+        "january",
+        "february",
+        "march",
+        "april",
+        "may",
+        "june",
+        "july",
+        "august",
+        "september",
+        "october",
+        "november",
+        "december",
+    ]
     return no_months[en_months.index(month.lower())]
 
 
 def day_to_norwegian(day: str) -> str:
     """Translates day name from english to norwegian, no case-sensitive input."""
     no_days = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"]
-    en_days = ["monday", "tuesay", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    en_days = [
+        "monday",
+        "tuesay",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]
     return no_days[en_days.index(day.lower())]
 
 
 def day_to_english(day: str) -> str:
     """Translates day name from norwegian to english, no case-sensitive input."""
-    en_days = ["Monday", "Tuesay", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    en_days = [
+        "Monday",
+        "Tuesay",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
     no_days = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
     return en_days[no_days.index(day.lower())]
 
@@ -164,13 +266,13 @@ def local_time_to_oslo(local_time: str, country: str) -> str:
     timezone = pytz.country_timezones[get_country_code(country)][0]
 
     # Convert local time to datetime object
-    dt = datetime.strptime(local_time, '%Y-%m-%d %H:%M')
+    dt = datetime.strptime(local_time, "%Y-%m-%d %H:%M")
 
     # Create timezone object for local timezone
     local_tz = pytz.timezone(timezone)
 
     # Create timezone object for Oslo time
-    gmt_plus_one = pytz.timezone('Europe/Oslo')
+    gmt_plus_one = pytz.timezone("Europe/Oslo")
 
     # Convert local time to Oslo time
     oslo_time = local_tz.localize(dt).astimezone(gmt_plus_one)
@@ -181,48 +283,50 @@ def local_time_to_oslo(local_time: str, country: str) -> str:
 def get_country_code(country_name: str) -> Union[str, None]:
     """Returns the ISO code for a given country name."""
     # Dictionary mapping country names to ISO codes
-    country_codes = {'Argentina': 'AR',
-                     'Austria': 'AT',
-                     'Australia': 'AU',
-                     'Azerbaijan': 'AZ',
-                     'Belgium': 'BE',
-                     'Brazil': 'BR',
-                     'Bahrain': 'BH',
-                     'Canada': 'CA',
-                     'Switzerland': 'CH',
-                     'China': 'CN',
-                     'Germany': 'DE',
-                     'Denmark': 'DK',
-                     'Algeria': 'DZ',
-                     'Spain': 'ES',
-                     'France': 'FR',
-                     'Great Britain': 'GB',
-                     'Hungary': 'HU',
-                     'Indonesia': 'ID',
-                     'Ireland': 'IE',
-                     'Israel': 'IL',
-                     'India': 'IN',
-                     'Italy': 'IT',
-                     'Japan': 'JP',
-                     'South Korea': 'KR',
-                     'Kuwait': 'KW',
-                     'Luxembourg': 'LU',
-                     'Morocco': 'MA',
-                     'Monaco': 'MC',
-                     'Mexico': 'MX',
-                     'Malaysia': 'MY',
-                     'Netherlands': 'NL',
-                     'Portugal': 'PT',
-                     'Russia': 'RU',
-                     'Saudi Arabia': 'SA',
-                     'Sweden': 'SE',
-                     'Singapore': 'SG',
-                     'Thailand': 'TH',
-                     'Turkey': 'TR',
-                     'Ukraine': 'UA',
-                     'United States': 'US',
-                     'Vietnam': 'VN',
-                     'South Africa': 'ZA'}
+    country_codes = {
+        "Argentina": "AR",
+        "Austria": "AT",
+        "Australia": "AU",
+        "Azerbaijan": "AZ",
+        "Belgium": "BE",
+        "Brazil": "BR",
+        "Bahrain": "BH",
+        "Canada": "CA",
+        "Switzerland": "CH",
+        "China": "CN",
+        "Germany": "DE",
+        "Denmark": "DK",
+        "Algeria": "DZ",
+        "Spain": "ES",
+        "France": "FR",
+        "Great Britain": "GB",
+        "Hungary": "HU",
+        "Indonesia": "ID",
+        "Ireland": "IE",
+        "Israel": "IL",
+        "India": "IN",
+        "Italy": "IT",
+        "Japan": "JP",
+        "South Korea": "KR",
+        "Kuwait": "KW",
+        "Luxembourg": "LU",
+        "Morocco": "MA",
+        "Monaco": "MC",
+        "Mexico": "MX",
+        "Malaysia": "MY",
+        "Netherlands": "NL",
+        "Portugal": "PT",
+        "Russia": "RU",
+        "Saudi Arabia": "SA",
+        "Sweden": "SE",
+        "Singapore": "SG",
+        "Thailand": "TH",
+        "Turkey": "TR",
+        "Ukraine": "UA",
+        "United States": "US",
+        "Vietnam": "VN",
+        "South Africa": "ZA",
+    }
 
     # Check if input country name is in dictionary
     if country_name in country_codes:
@@ -276,25 +380,32 @@ def archive_json(filename: str, archive_filename: str = None) -> None:
 
 def update_f2cal_json(json_dict: dict, filename: str) -> None:
     """Updates an existing f2 calendar json file with new keys-value pairs,
-     also updates old keys' values if they dont contain timing info."""
+    also updates old keys' values if they dont contain timing info."""
     if not file_exists(filename):
         return
     with open(filename, "r") as infile:
         old_data = json.load(infile)
         for key, val in json_dict.items():
-            empty_cond = not bool(old_data[key][-1])  # last element in the old value is empty (list)
+            empty_cond = not bool(
+                old_data[key][-1]
+            )  # last element in the old value is empty (list)
             # if either a new key or existing key with empty timing info:
             if (key not in old_data) or empty_cond:
                 old_data[key] = val  # then replace old value with new updated value
             # or if existing key with non-empty timing info
             elif not empty_cond:
                 # but is missing the actual timing info (to prevent indexing errors):
-                if old_data[key][-1][0][1] not in ["Thursday", "Friday", "Saturday", "Sunday"]:
+                if old_data[key][-1][0][1] not in [
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                ]:
                     old_data[key] = val
     with open(filename, "w") as outfile:
         json.dump(old_data, outfile, indent=3)
-        
-        
+
+
 def extract_json_data(json_file: str = "data/f2_calendar.json") -> F2CalendarType:
     """Extracts data from the given json file."""
     with open(json_file, "r") as infile:
@@ -321,13 +432,17 @@ async def startup_check() -> None:
     discord_data_values, f2_race_id_values = False, False
     discord_data_exists = file_exists("data/discord_data.json")
     if not discord_data_exists:
-        print("No 'data/discord_data.json' file found, do you want to create one? (y/n)")
+        print(
+            "No 'data/discord_data.json' file found, do you want to create one? (y/n)"
+        )
         answer = input("> ")
         if answer.lower() == "y":
             await create_json("data/discord_data.json")
     discord_data_exists = file_exists("data/discord_data.json")
-    if discord_data_exists:   # was the file was created above?
-        discord_data_values = await check_json_values("data/discord_data.json")  # missing values?
+    if discord_data_exists:  # was the file was created above?
+        discord_data_values = await check_json_values(
+            "data/discord_data.json"
+        )  # missing values?
 
     f2_race_ids_exists = file_exists("data/f2_race_ids.json")
     if not f2_race_ids_exists:
@@ -337,7 +452,9 @@ async def startup_check() -> None:
             await create_json("data/f2_race_ids.json")
     f2_race_ids_exists = file_exists("data/f2_race_ids.json")
     if f2_race_ids_exists:  # was the file was created above?
-        f2_race_id_values = await check_json_values("data/f2_race_ids.json")  # missing values?
+        f2_race_id_values = await check_json_values(
+            "data/f2_race_ids.json"
+        )  # missing values?
 
     # Check which of the files are missing, or both:
     missing_files = []
@@ -346,8 +463,10 @@ async def startup_check() -> None:
     if not f2_race_ids_exists:
         missing_files.append("data/f2_race_ids.json")
     if missing_files:
-        print(f"Missing the following json files: {missing_files}. Please restart the bot "
-              f"or add them manually.\nExiting...")
+        print(
+            f"Missing the following json files: {missing_files}. Please restart the bot "
+            f"or add them manually.\nExiting..."
+        )
         exit(1)
     # Check which of the files are missing required values, or both:
     missing_file_values = []
@@ -356,25 +475,26 @@ async def startup_check() -> None:
     if not f2_race_id_values:
         missing_file_values.append("data/f2_race_ids.json")
     if missing_file_values:
-        print(f"The following json files are missing required values: {missing_file_values}. Please restart the bot"
-              f" or add them manually.\nExiting...")
+        print(
+            f"The following json files are missing required values: {missing_file_values}. Please restart the bot"
+            f" or add them manually.\nExiting..."
+        )
         exit(1)
 
 
-async def create_json(file: str, default_data: dict[str: str] = None) -> None:
+async def create_json(file: str, default_data: dict[str:str] = None) -> None:
     """Creates a new json file."""
     if default_data is None:
         if file == "data/discord_data.json":
             with open("data/template_discord_data.json", "r") as infile:
                 default_data = json.load(infile)
         elif file == "data/f2_race_ids.json":
-            default_data = {
-                "f2_first_raceid": "1050",
-                "f2_last_raceid": "1063"
-            }
+            default_data = {"f2_first_raceid": "1050", "f2_last_raceid": "1063"}
         else:
-            raise NotImplementedError(f"util.create_json() default data not implemented for '{file}',"
-                                      f"please input a dictionary with key-value pairs.")
+            raise NotImplementedError(
+                f"util.create_json() default data not implemented for '{file}',"
+                f"please input a dictionary with key-value pairs."
+            )
     print(f"Creating new {file} file...")
     with open(file, "w") as outfile:
         json.dump(default_data, outfile, indent=3)
@@ -388,13 +508,17 @@ async def check_json_values(file: str, required_value_keys: list[str] = None) ->
         elif file == "data/f2_race_ids.json":
             required_value_keys = ["f2_first_raceid", "f2_last_raceid"]
         else:
-            raise NotImplementedError(f"util.check_json_values() list of required value keys not implemented"
-                                      f"for '{file}, please input a list of strings with the required keys.")
+            raise NotImplementedError(
+                f"util.check_json_values() list of required value keys not implemented"
+                f"for '{file}, please input a list of strings with the required keys."
+            )
     with open(file, "r") as infile:
         data = json.load(infile)
         for key in required_value_keys:
-            if not data.get(key):   # empty value
-                print(f"'{key}' value not found in '{file}', do you want to add it? (y/n)")
+            if not data.get(key):  # empty value
+                print(
+                    f"'{key}' value not found in '{file}', do you want to add it? (y/n)"
+                )
                 answer = input("> ")
                 if answer.lower() == "y":
                     print(f"Enter the value for '{key}':")
