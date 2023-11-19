@@ -46,37 +46,26 @@ def get_week_event(
 
 def get_next_week_event(date_: datetime.date) -> fastf1.events.Event:
     """Returns the next race week event from a given date."""
+
     dates = get_remaining_dates(date_)
 
-    # Check if no dates remaining
-    assert dates, f"get_next_week_event(): No remaining dates found for date: {date_}"
-
-    sunday = util.get_sunday_date_object(date_)
-    saturday = sunday - timedelta(days=1)  # sometimes event date is saturday
-    date_str = str(date_)
-
-    if is_f1_race_week(date_str):
-        return get_week_event(date_str)
-
-    for _ in range(60):
-        if sunday in dates:
-            return get_week_event(sunday)
-        if saturday in dates:
-            return get_week_event(saturday)
-
-        # Increase week by 1 and check again
-        sunday += timedelta(weeks=1)
-
-    # Not found in 60 tries
-    raise ValueError(
-        f"get_next_week_event(): No next week event found for date: {date_}"
-    )
+    # No more dates left this year
+    if not dates:
+        raise ValueError(
+            "get_next_week_event() got no dates from get_remaining_dates(): possibly no more races this year?"
+        )
+    return get_week_event(dates[0])  # first event is the next one
 
 
 def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
     """Returns a list of all the remaining dates of the f1 season."""
     if isinstance(date_, str):
         date_ = util.get_date_object(date_)
+
+    # If after friday, revert some days to make sure the remaining dates returns this week's event too
+    if date_.weekday() > 4:
+        date_ -= timedelta(days=2)
+
     dt = datetime.combine(date_, datetime.min.time())
     remaining_schedule = fastf1.get_events_remaining(dt, include_testing=False)
     dates = str(remaining_schedule["EventDate"]).split(
@@ -85,7 +74,7 @@ def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
     dates = [
         i.split(" ")[-1] for i in dates
     ]  # seperate the dates in the string with column numbers
-    return dates
+    return dates[:-1]  # drop last, is not event
 
 
 def is_f1_race_week(date_: Union[str, datetime.date]) -> bool:
@@ -166,10 +155,16 @@ def get_event_info(
 def until_next_race_week(date_: Union[str, datetime.date]) -> int:
     """Returns integer of how many weeks until next race week from given date."""
     dates = get_remaining_dates(date_)
+
+    # No more dates left this year
+    if not dates:
+        raise ValueError(
+            "get_next_week_event() got no dates from get_remaining_dates(): possibly no more races this year?"
+        )
+
     sunday = util.get_sunday_date_object(date_)
-    saturday = sunday - timedelta(
-        days=1
-    )  # CHECK BOTH SUNDAY AND SATURDAY, sometimes f1 schedules messes up
+    # CHECK BOTH SUNDAY AND SATURDAY, sometimes f1 schedules messes up
+    saturday = sunday - timedelta(days=1)
 
     # Iterate through remaining event dates and count until found the given date's sunday event date
     counter = 0
