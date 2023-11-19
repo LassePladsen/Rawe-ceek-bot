@@ -1,5 +1,6 @@
 import logging
 import sys
+import traceback
 
 from asyncio import sleep, get_event_loop
 from datetime import datetime, timedelta
@@ -22,8 +23,9 @@ scheduled_minute = 0
 
 
 # Create logging to a bot.log file
+LOG_FILENAME = "bot.log"
 logger = logging.getLogger(__name__)
-fh = logging.FileHandler("bot.log")  # log to logfile
+fh = logging.FileHandler(LOG_FILENAME)  # log to logfile
 fh.setFormatter(logging.Formatter("[%(asctime)s - %(levelname)s] - %(message)s"))
 logger.addHandler(fh)
 logger.setLevel(logging.INFO)
@@ -223,7 +225,8 @@ async def status() -> None:
         logger.info("Status task starting")
 
         retries = 0
-        while retries < 10:
+        max_retries = 10
+        while True:
             try:
                 await update_status_message()
 
@@ -245,9 +248,16 @@ async def status() -> None:
 
             # Log exception and add a retry after 10 seconds
             except Exception as e:
-                logger.error(
-                    f"An error occured in status_task ({retries=}): {type(e)}: {e}"
-                )
+                if retries < max_retries:
+                    logger.error(
+                        f"An error occured in status_task ({retries=}): {type(e)}: {e}"
+                    )
+
+                else:
+                    logger.error("Max retries reached, see error traceback:")
+                    traceback.print_exception(e, file=open(LOG_FILENAME, "a"))
+                    break
+
                 retries += 1
                 await sleep(10)
 
