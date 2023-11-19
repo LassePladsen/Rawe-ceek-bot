@@ -59,14 +59,13 @@ def get_next_week_event(date_: datetime.date) -> fastf1.events.Event:
         return get_week_event(date_str)
 
     for _ in range(60):
-        print(sunday, saturday)
         if sunday in dates:
             return get_week_event(sunday)
         if saturday in dates:
             return get_week_event(saturday)
 
         # Increase week by 1 and check again
-        sunday -= timedelta(weeks=1)
+        sunday += timedelta(weeks=1)
 
     # Not found in 60 tries
     raise ValueError(
