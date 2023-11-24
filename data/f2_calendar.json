@@ -260,6 +260,22 @@
       "United Arab Emirates",
       "Yas Island",
       "24-26 November 2023",
-      []
+      [
+         [
+            "Qualifying Session",
+            "Friday",
+            "12:00-12:30"
+         ],
+         [
+            "Sprint Race",
+            "Saturday",
+            "13:20-14:05"
+         ],
+         [
+            "Feature Race",
+            "Sunday",
+            "10:15-11:15"
+         ]
+      ]
    ]
 }
