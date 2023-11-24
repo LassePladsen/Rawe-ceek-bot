@@ -193,6 +193,15 @@ def get_all_week_info(
     f2_calendar = util.extract_json_data()
     f2_days = extract_days(event, f2_calendar)
 
+    # If this triggers, then the f2 event has started and the calendar
+    # has no timing data for the event, so we just return n/a timings
+    if "Sunday" not in f2_days.keys():
+        f2_days = {  # default dict with n/a times
+            "Friday": [["Qualifying Session", "N/A"]],
+            "Saturday": [["Sprint Race", "N/A"]],
+            "Sunday": [["Feature Race", "N/A"]],
+        }
+
     eventtitle = get_event_info(event)
     eventinfo = get_all_days(event, f2_days, f1_days)
 
@@ -249,8 +258,8 @@ def get_day_sessions(
                 else:
                     title = f"F2 {name}"
 
-                # special case for it the f2 timing is TBC
-                if time == "TBC":
+                # special case for it the f2 timing is TBC or N/A
+                if time in ["TBC", "N/A"] :
                     tbc_sessions.append(f"{title}: {time}")
                 else:  # now sort the sessions by hour
                     hour = int(time.split(":")[0])

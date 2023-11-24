@@ -5,8 +5,16 @@ from typing import Union
 import requests
 from bs4 import BeautifulSoup
 
-from util import (local_time_to_oslo, file_exists, update_f2cal_json, format_date, extract_json_data,
-                  get_sunday_date_str, get_event_date_str, get_json_data)
+from util import (
+    local_time_to_oslo,
+    file_exists,
+    update_f2cal_json,
+    format_date,
+    extract_json_data,
+    get_sunday_date_str,
+    get_event_date_str,
+    get_json_data,
+)
 
 F2CalendarType = dict[str, list[Union[str, list[str]]]]
 
@@ -25,21 +33,24 @@ def scrape_calendar(logger: Union[logging.Logger, None] = None) -> F2CalendarTyp
     first_race_id = int(get_json_data("f2_first_raceid", file=race_ids_json_filename))
     last_race_id = int(get_json_data("f2_last_raceid", file=race_ids_json_filename))
     for i in range(first_race_id, last_race_id + 1):
-        url = f'https://www.fiaformula2.com/Results?raceid={i}'
+        url = f"https://www.fiaformula2.com/Results?raceid={i}"
         response = requests.get(url)
 
-        # response is not ok -> skip this race event 
+        # response is not ok -> skip this race event
         if not 200 <= response.status_code < 300:
             if logger:
-                logger.error(f"formula2.scrape_calendar(): reponse.status_code not in [200, 300) for url '{url}', continuing next event.")
+                logger.error(
+                    f"formula2.scrape_calendar(): reponse.status_code not in [200, 300) for url '{url}', continuing next event."
+                )
             continue
 
-
-        soup = BeautifulSoup(response.content, 'html.parser')
+        soup = BeautifulSoup(response.content, "html.parser")
 
         try:
             country = soup.find("div", {"class": "country-circuit-name"}).text
-            if "-" in country:  # If circuit name is more than the country like 'Italy-Emilia Romagna'
+            if (
+                "-" in country
+            ):  # If circuit name is more than the country like 'Italy-Emilia Romagna'
                 country = country.split("-")[0]
 
             circuit = soup.find("div", {"class": "country-circuit"}).text
@@ -84,8 +95,9 @@ def scrape_calendar(logger: Union[logging.Logger, None] = None) -> F2CalendarTyp
     return f2_events
 
 
-def store_calendar_to_json(calendar: F2CalendarType,
-                           json_file: str = "data/f2_calendar.json") -> None:
+def store_calendar_to_json(
+    calendar: F2CalendarType, json_file: str = "data/f2_calendar.json"
+) -> None:
     """Saves f2 calendar data taken from scrape_calendar() and saves it to a json file.
     Used to store old timing data since the timings dissapear on the f2 website as soon as the first weeks event starts.
     """
@@ -96,17 +108,22 @@ def store_calendar_to_json(calendar: F2CalendarType,
         update_f2cal_json(calendar, json_file)
 
 
-def extract_days(event: "fastf1.events.Event",
-                 f2_calendar: F2CalendarType) -> Union[dict, dict[str, list[list[str]]]]:
+def extract_days(
+    event: "fastf1.events.Event", f2_calendar: F2CalendarType
+) -> Union[dict, dict[str, list[list[str]]]]:
     """Extracts and sorts from dictionary the F2 sessions of given event as fastf1.Event object.
     Returns a dictionary mapping session days to session names and times.
     """
     event_date = get_event_date_str(event)
     session_days = {}
-    try:
-        f2_event = f2_calendar[event_date][4]
-    except KeyError:
-        return session_days
+    f2_event = f2_calendar.get(event_date)[4]
+
+    if not f2_event:  # if no event data is found for the date
+        return {  # default dict with n/a times
+            "Friday": [["Qualifying Session", "N/A"]],
+            "Saturday": [["Sprint Race", "N/A"]],
+            "Sunday": [["Feature Race", "N/A"]],
+        }
 
     for day in f2_event:
         try:
