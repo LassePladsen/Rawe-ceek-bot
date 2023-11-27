@@ -255,7 +255,7 @@ async def status() -> None:
 
                 else:
                     logger.error("Max retries reached, see error traceback:")
-                    traceback.print_exception(e, file=open(LOG_FILENAME, "a"))
+                    traceback.print_exc(file=open(LOG_FILENAME, "a"))
                     break
 
                 retries += 1
