@@ -1,0 +1,281 @@
+{
+    "05 March": [
+        "Round 1",
+        "Bahrain",
+        "Sakhir",
+        "03-05 March 2023",
+        [
+            [
+                "Qualifying Session",
+                "0T. Pourchaire1:40.903"
+            ],
+            [
+                "Sprint Race",
+                "0R. Boschung41:50.597"
+            ],
+            [
+                "Feature Race",
+                "0T. Pourchaire1:01:10.926"
+            ]
+        ]
+    ],
+    "19 March": [
+        "Round 2",
+        "Saudi Arabia",
+        "Jeddah",
+        "17-19 March 2023",
+        [
+            [
+                "Qualifying Session",
+                "0V. Martins1:41.326"
+            ],
+            [
+                "Sprint Race",
+                "0A. Iwasa42:21.514"
+            ],
+            [
+                "Feature Race",
+                "0F. Vesti50:45.587"
+            ]
+        ]
+    ],
+    "02 April": [
+        "Round 3",
+        "Australia",
+        "Melbourne",
+        "31-02 April 2023",
+        [
+            [
+                "Qualifying Session",
+                "0A. Iwasa1:45.118"
+            ],
+            [
+                "Sprint Race",
+                "0D. Hauger40:03.429"
+            ],
+            [
+                "Feature Race",
+                "0A. Iwasa1:00:30.247"
+            ]
+        ]
+    ],
+    "30 April": [
+        "Round 4",
+        "Azerbaijan",
+        "Baku",
+        "28-30 April 2023",
+        [
+            [
+                "Qualifying Session",
+                "0O. Bearman1:52.652"
+            ],
+            [
+                "Sprint Race",
+                "0O. Bearman51:27.274"
+            ],
+            [
+                "Feature Race",
+                "0O. Bearman57:23.163"
+            ]
+        ]
+    ],
+    "02 July": [
+        "Round 8",
+        "Austria",
+        "Spielberg",
+        "30-02 July 2023",
+        [
+            [
+                "Qualifying Session",
+                "Friday",
+                "15:55-16:25"
+            ],
+            [
+                "Sprint Race",
+                "Saturday",
+                "13:45-14:30"
+            ],
+            [
+                "Feature Race",
+                "Sunday",
+                "09:55-10:55"
+            ]
+        ]
+    ],
+    "09 July": [
+        "Round 9",
+        "Great Britain",
+        "Silverstone",
+        "07-09 July 2023",
+        [
+            [
+                "Qualifying Session",
+                "Friday",
+                "16:05-16:35"
+            ],
+            [
+                "Sprint Race",
+                "Saturday",
+                "14:15-15:00"
+            ],
+            [
+                "Feature Race",
+                "Sunday",
+                "10:55-11:55"
+            ]
+        ]
+    ],
+    "28 May": [
+        "Round 6",
+        "Monaco",
+        "Monte Carlo",
+        "25-28 May 2023",
+        [
+            [
+                "Qualifying Group A",
+                "0V. Martins1:21.231"
+            ],
+            [
+                "Qualifying Group B",
+                "0F. Vesti1:21.053"
+            ],
+            [
+                "Sprint Race",
+                "0A. Iwasa46:39.033"
+            ],
+            [
+                "Feature Race",
+                "0F. Vesti1:20:02.426"
+            ]
+        ]
+    ],
+    "04 June": [
+        "Round 7",
+        "Spain",
+        "Barcelona",
+        "02-04 June 2023",
+        [
+            [
+                "Qualifying Session",
+                "0O. Bearman1:23.546"
+            ],
+            [
+                "Sprint Race",
+                "0F. Vesti47:22.796"
+            ],
+            [
+                "Feature Race",
+                "0O. Bearman56:56.729"
+            ]
+        ]
+    ],
+    "23 July": [
+        "Round 10",
+        "Hungary",
+        "Budapest",
+        "21-23 July 2023",
+        [
+            [
+                "Qualifying Session",
+                "Friday",
+                "16:00-16:30"
+            ],
+            [
+                "Sprint Race",
+                "Saturday",
+                "14:15-15:00"
+            ],
+            [
+                "Feature Race",
+                "Sunday",
+                "10:05-11:05"
+            ]
+        ]
+    ],
+    "30 July": [
+        "Round 11",
+        "Belgium",
+        "Spa-Francorchamps",
+        "28-30 July 2023",
+        [
+            [
+                "Qualifying Session",
+                "Friday",
+                "15:55-16:25"
+            ],
+            [
+                "Sprint Race",
+                "Saturday",
+                "13:45-14:30"
+            ],
+            [
+                "Feature Race",
+                "Sunday",
+                "10:00-10:45"
+            ]
+        ]
+    ],
+    "27 August": [
+        "Round 12",
+        "Netherlands",
+        "Zandvoort",
+        "25-27 August 2023",
+        [
+            [
+                "Qualifying Session",
+                "0J. Crawford1:21.210"
+            ],
+            [
+                "Sprint Race",
+                "0I. Hadjar4:59.002"
+            ],
+            [
+                "Feature Race",
+                "0C. Novalak1:01:36.125"
+            ]
+        ]
+    ],
+    "03 September": [
+        "Round 13",
+        "Italy",
+        "Monza",
+        "01-03 September 2023",
+        [
+            [
+                "Qualifying Session",
+                "0T. Pourchaire1:32.328"
+            ],
+            [
+                "Sprint Race",
+                "0F. Vesti40:18.006"
+            ],
+            [
+                "Feature Race",
+                "0O. Bearman1:03:50.518"
+            ]
+        ]
+    ],
+    "26 November": [
+        "Round 14",
+        "United Arab Emirates",
+        "Yas Island",
+        "24-26 November 2023",
+        [
+            [
+                "Qualifying Session",
+                "Friday",
+                "12:00-12:30"
+            ],
+            [
+                "Sprint Race",
+                "Saturday",
+                "13:20-14:05"
+            ],
+            [
+                "Feature Race",
+                "Sunday",
+                "10:15-11:15"
+            ]
+        ]
+    ]
+}
