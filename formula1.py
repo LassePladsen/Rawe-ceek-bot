@@ -8,9 +8,8 @@ import numpy as np
 import util
 from formula2 import extract_days
 
-fastf1.set_log_level(
-    "ERROR"
-)  # lower log level to remove "default cache enabled" warning
+# lower log level to remove "default cache enabled" warning
+fastf1.set_log_level("ERROR")
 
 
 def get_week_event(
@@ -168,7 +167,7 @@ def until_next_race_week(date_: Union[str, datetime.date]) -> int:
 
     # Iterate through remaining event dates and count until found the given date's sunday event date
     counter = 0
-    
+
     while str(sunday) not in dates and str(saturday) not in dates:
         # Increase week by 1 and check again
         sunday += timedelta(weeks=1)
@@ -260,16 +259,16 @@ def get_day_sessions(
                     title = f"F2 {name}"
 
                 # special case for it the f2 timing is TBC or N/A
-                if time in ["TBC", "N/A"] :
+                if time in ["TBC", "N/A"]:
                     tbc_sessions.append(f"{title}: {time}")
                 else:  # now sort the sessions by hour
                     hour = int(time.split(":")[0])
                     if (
                         timing_dict.get(hour) is not None
                     ):  # check if there already is a session on the same hour
-                        timing_dict[
-                            hour + 1
-                        ] = f"{title}: {time}"  # then add it as the next hour instead
+                        timing_dict[hour + 1] = (
+                            f"{title}: {time}"  # then add it as the next hour instead
+                        )
                     else:  # if not then add it as the hour
                         timing_dict[hour] = f"{title}: {time}"
 
