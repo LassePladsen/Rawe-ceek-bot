@@ -225,7 +225,7 @@ async def status() -> None:
         logger.info("Status task starting")
 
         retries = 0
-        max_retries = 10
+        max_retries = 5
         while True:
             try:
                 await update_status_message()

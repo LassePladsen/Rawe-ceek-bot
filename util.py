@@ -370,24 +370,35 @@ def update_f2cal_json(json_dict: dict, filename: str) -> None:
     if not file_exists(filename):
         return
     with open(filename, "r") as infile:
-        old_data = json.load(infile)
-        for key, val in json_dict.items():
-            empty_cond = not bool(
-                old_data[key][-1]
-            )  # last element in the old value is empty (list)
-            # if either a new key or existing key with empty timing info:
-            if (key not in old_data) or empty_cond:
-                old_data[key] = val  # then replace old value with new updated value
-            # or if existing key with non-empty timing info
-            elif not empty_cond:
-                # but is missing the actual timing info (to prevent indexing errors):
-                if old_data[key][-1][0][1] not in [
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday",
-                ]:
-                    old_data[key] = val
+        try:
+            old_data = json.load(infile)
+            for key, val in json_dict.items():
+                # last element in the old value is empty (list) or the key is new:
+                elem = old_data.get(key)
+                if not elem:
+                    empty_cond = True
+                else:
+                    empty_cond = not bool(elem[-1])  
+
+                # if either a new key or existing key with empty timing info:
+                if empty_cond:
+                    old_data[key] = val  # then replace old value with new updated value
+
+                # or if existing key with non-empty timing info
+                elif not empty_cond:
+                    # but is missing the actual timing info (to prevent indexing errors):
+                    if old_data[key][-1][0][1] not in [
+                        "Thursday",
+                        "Friday",
+                        "Saturday",
+                        "Sunday",
+                    ]:
+                        old_data[key] = val
+
+        except json.JSONDecodeError:  # Empty file
+            old_data = {}
+            old_data.update(json_dict)
+
     with open(filename, "w") as outfile:
         json.dump(old_data, outfile, indent=3)
 
