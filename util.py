@@ -34,24 +34,10 @@ def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
     weekday = date_.weekday()  # the weekday number of the week beginning at 0 (monday)
     days_until_sunday = 6 - weekday
 
-    # Create new day date and fix the formatting (f.ex 07 instead of 7)
-    new_day = date_.day + days_until_sunday
-    new_day = day_string_formatting(str(new_day))
+    # Create new day date object with the date of the next sunday
+    date_sunday = date_ + timedelta(days=days_until_sunday)
 
-    date_sunday = str(date_)[:-2] + str(new_day)
-
-    # Roll over to next month if day number exceeds days in the given month:
-    days_in_month = calendar.monthrange(date_.year, date_.month)[1]
-    if int(date_sunday[-2:]) > days_in_month:
-        # Find new day number
-        days_exceeded = int(date_sunday[-2:]) - days_in_month
-        new_day = day_string_formatting(str(days_exceeded))  # format day number
-        date_sunday = date_sunday[:-2] + new_day  # roll to new day number
-
-        date_sunday = date_sunday.replace(
-            str(date_.month), str(date_.month + 1)
-        )  # roll to next month
-    return date_sunday
+    return str(date_sunday)
 
 
 def get_sunday_date_object(date_: Union[str, datetime.date]) -> datetime.date:

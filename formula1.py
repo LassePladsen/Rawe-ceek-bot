@@ -168,6 +168,7 @@ def until_next_race_week(date_: Union[str, datetime.date]) -> int:
 
     # Iterate through remaining event dates and count until found the given date's sunday event date
     counter = 0
+    
     while str(sunday) not in dates and str(saturday) not in dates:
         # Increase week by 1 and check again
         sunday += timedelta(weeks=1)
