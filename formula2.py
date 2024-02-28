@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 from typing import Union
@@ -12,6 +13,7 @@ from util import (
     format_date,
     extract_json_data,
     get_sunday_date_str,
+    get_sunday_date_object,
     get_event_date_str,
     get_json_data,
 )
@@ -139,13 +141,14 @@ def extract_days(
     return session_days
 
 
-def is_f2_race_week(date_: Union[str, "datetime.date"]) -> bool:
+def is_f2_race_week(date_: Union[str, datetime.date]) -> bool:
     """Boolean return for if the given date is a f2 race week."""
-    if not isinstance(date_, str):
-        date_ = str(date_)
-    sunday = get_sunday_date_str(date_)
+    sunday = get_sunday_date_object(date_)
+    saturday = sunday - datetime.timedelta(days=1)
+    
     f2_calendar = extract_json_data()
-    if format_date(sunday) in list(f2_calendar.keys()):
+    if (format_date(sunday) in list(f2_calendar.keys())
+        or format_date(saturday) in list(f2_calendar.keys())):
         return True
     else:
         return False

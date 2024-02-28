@@ -195,8 +195,10 @@ def day_to_english(day: str) -> str:
     return en_days[no_days.index(day.lower())]
 
 
-def format_date(date_: str) -> str:
+def format_date(date_: Union[str, datetime.date]) -> str:
     """Reformats a date string given as 'year-mm-dd hh:mm:ss' to 'dd Month' (with month names)."""
+    if not isinstance(date_, str):
+        date_ = str(date_)
     date_ = date_.split(" ")[0]
     month = month_index_to_name(int(date_[5:7]))
     day = date_[8:]
