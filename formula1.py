@@ -195,7 +195,7 @@ def get_all_week_info(
 
     # If this triggers, then the f2 event has started and the calendar
     # has no timing data for the event, so we just return n/a timings
-    if "Sunday" not in f2_days.keys():
+    if ("Sunday" not in f2_days.keys() and "Saturday" not in f2_days.keys()):
         f2_days = {  # default dict with n/a times
             "Friday": [["Qualifying Session", "N/A"]],
             "Saturday": [["Sprint Race", "N/A"]],
