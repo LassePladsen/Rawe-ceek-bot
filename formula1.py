@@ -1,4 +1,5 @@
 import calendar
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 from typing import Union
 
@@ -85,6 +86,7 @@ def is_f1_race_week(date_: Union[str, datetime.date]) -> bool:
         return False
 
 
+@DeprecationWarning
 def is_sprint_week(event: fastf1.events.Event) -> bool:
     """Boolean check if a race event has a f1 sprint session."""
     try:
@@ -99,24 +101,24 @@ def sort_sessions_by_day(
 ) -> dict[str, list[fastf1.core.Session]]:
     """Returns a dictionary mapping days to list containing all f1 fastf1.Session objects
     for the corresponding days"""
-    session_days = {"Friday": [], "Saturday": [], "Sunday": []}
+    session_days = defaultdict(list)
 
-    q_session = event.get_qualifying()
-    r_session = event.get_race()
+    i = 1
+    while True:
+        try:
+            session = event.get_session(i)
+            session_name = str(session)
 
-    # Qualifying is friday if there is a sprint race, else it is saturday
-    # Get the two sprint sessions if the race week includes a sprint:
-    if is_sprint_week(event):
-        spq_session = event.get_sprint_shootout()
-        sp_session = event.get_sprint()
+            # Check for the session type to exclude Practice sessions
+            if "Practice" not in session_name:
+                session_date = event.get_session_date(i)
+                week_day = calendar.day_name[date.weekday(session_date)]
+                session_days[week_day].append(event.get_session(i))
 
-        session_days["Friday"].append(q_session)
-        session_days["Saturday"].append(spq_session)
-        session_days["Saturday"].append(sp_session)
-    else:
-        session_days["Saturday"].append(q_session)
-
-    session_days["Sunday"].append(r_session)  # Race is always sunday
+            i += 1
+        except ValueError:
+            # Break the loop when there are no more sessions
+            break
 
     return session_days
 
