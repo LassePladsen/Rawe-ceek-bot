@@ -18,8 +18,8 @@ CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-scheduled_hour = 5
-scheduled_minute = 0
+scheduled_hour = 19
+scheduled_minute = 9
 
 
 # Create logging to a bot.log file
@@ -74,9 +74,10 @@ async def get_no_race_week_embed(date_: datetime.date) -> Union[discord.Embed, N
             str(week_count) + " uker til neste rawe ceek..."
         )  # title for embed message
 
-    next_event_name = f1.get_next_week_event(date_)["EventName"]
+    next_event = f1.get_next_week_event(date_)
+    next_event_name = ["EventName"]
 
-    en_date = util.get_event_date_str(f1.get_next_week_event(date_))
+    en_date = util.get_event_date_str(next_event)
     no_date = (
         str(int(en_date.split(" ")[0]))
         + " "
