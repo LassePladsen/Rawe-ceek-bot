@@ -260,7 +260,7 @@ async def status() -> None:
                     break
 
                 retries += 1
-                await sleep(10)
+                await sleep(10)  # sleep and retry
 
     # Run the task once, then create the schedule loop
     await status_task()
