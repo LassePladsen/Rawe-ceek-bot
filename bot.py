@@ -75,7 +75,7 @@ async def get_no_race_week_embed(date_: datetime.date) -> Union[discord.Embed, N
         )  # title for embed message
 
     next_event = f1.get_next_week_event(date_)
-    next_event_name = ["EventName"]
+    next_event_name = next_event["EventName"]
 
     en_date = util.get_event_date_str(next_event)
     no_date = (
