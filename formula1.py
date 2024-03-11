@@ -52,9 +52,9 @@ def get_next_week_event(date_: datetime.date) -> fastf1.events.Event:
     # No more dates left this year
     if not dates:
         raise ValueError(
-            "get_next_week_event() got no dates from get_remaining_dates(): possibly no more races this year?"
+            f"get_next_week_event() got no dates from get_remaining_dates(): possibly no more races this year? Error log: date={date_},   dates={dates}"
         )
-    return get_week_event(dates[0])  # first event is the next one
+    return get_week_event(dates[0])  # the first event is the next one
 
 
 def get_remaining_dates(date_: Union[str, datetime.date]) -> list[str]:
@@ -197,7 +197,7 @@ def get_all_week_info(
 
     # If this triggers, then the f2 event has started and the calendar
     # has no timing data for the event, so we just return n/a timings
-    if ("Sunday" not in f2_days.keys() and "Saturday" not in f2_days.keys()):
+    if "Sunday" not in f2_days.keys() and "Saturday" not in f2_days.keys():
         f2_days = {  # default dict with n/a times
             "Friday": [["Qualifying Session", "N/A"]],
             "Saturday": [["Sprint Race", "N/A"]],
