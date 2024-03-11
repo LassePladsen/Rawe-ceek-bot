@@ -18,8 +18,8 @@ CHANNEL_ID = int(util.get_json_data("channel_id"))
 
 # Status run timing (24 hour format)
 # NOTE: in norway it should be after 2 am since get_previous_bot_message() is in UTC time (norway time minus 2 hours).
-scheduled_hour = 19
-scheduled_minute = 9
+scheduled_hour = 5
+scheduled_minute = 0
 
 
 # Create logging to a bot.log file
