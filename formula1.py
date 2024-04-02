@@ -288,7 +288,7 @@ def get_day_sessions(
 
                 # Extract session time and convert to norwegian time zone
                 local_time = f1_session.date
-                out_time = util.timezone_to_oslo(local_time)
+                out_time = util.time_reformatter(util.timezone_to_oslo(local_time))
                 hour = int(out_time.split(":")[0])
                 timing_dict[hour] = f"{title}: {out_time}"
 

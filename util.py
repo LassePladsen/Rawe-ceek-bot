@@ -24,6 +24,13 @@ def day_string_formatting(day: Union[int, str]) -> str:
         return "0" + str(day)
     else:
         return str(day)
+    
+
+def time_reformatter(time: Union[int, str]) -> str:
+    """Reformats a time in the format "5:00" to "05:00". Does nothing if the hour
+    has double digits. Argument can be int or str."""
+    hour, minute = str(time).split(":")
+    return day_string_formatting(hour) + ":" + minute
 
 
 def get_sunday_date_str(date_: Union[str, datetime.date]) -> str:
