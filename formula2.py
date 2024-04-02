@@ -118,16 +118,21 @@ def extract_days(
     """
     event_date = get_event_date_str(event)
     session_days = {}
-    f2_event = f2_calendar.get(event_date)[4]
+    f2_event = f2_calendar.get(event_date)
 
-    if not f2_event:  # if no event data is found for the date
+    if not f2_event:  # no f2 event found in calendar json, return None early
+        return
+
+    f2_event_data = f2_event[4]
+
+    if not f2_event_data:  # if no event data is found for the date
         return {  # default dict with n/a times
             "Friday": [["Qualifying Session", "N/A"]],
             "Saturday": [["Sprint Race", "N/A"]],
             "Sunday": [["Feature Race", "N/A"]],
         }
 
-    for day in f2_event:
+    for day in f2_event_data:
         try:
             dayname = day.pop(1)
         except IndexError:
@@ -145,10 +150,11 @@ def is_f2_race_week(date_: Union[str, datetime.date]) -> bool:
     """Boolean return for if the given date is a f2 race week."""
     sunday = get_sunday_date_object(date_)
     saturday = sunday - datetime.timedelta(days=1)
-    
+
     f2_calendar = extract_json_data()
-    if (format_date(sunday) in list(f2_calendar.keys())
-        or format_date(saturday) in list(f2_calendar.keys())):
+    if format_date(sunday) in list(f2_calendar.keys()) or format_date(saturday) in list(
+        f2_calendar.keys()
+    ):
         return True
     else:
         return False
