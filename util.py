@@ -24,7 +24,7 @@ def day_string_formatting(day: Union[int, str]) -> str:
         return "0" + str(day)
     else:
         return str(day)
-    
+
 
 def time_reformatter(time: Union[int, str]) -> str:
     """Reformats a time in the format "5:00" to "05:00". Does nothing if the hour
@@ -226,16 +226,7 @@ def get_date_object(date_: str) -> datetime.date:
 
 def timezone_to_oslo(time: "pandas.Timestamp") -> str:
     """Converts a time of pandas.Timestamp object to norwegian timezone."""
-    no_time = time.tz_localize("Europe/Oslo")
-    out_time = str(no_time).split(" ")[1]
-
-    # Add the timezone conversion to the total time (f.ex: 20:00:00+02:00 to 22:00:00)
-    hour = int(out_time[:2])
-    hour_add = int(out_time[8:11])
-    hour_corrected = hour + hour_add
-
-    out_time = str(hour_corrected) + out_time[2:5]
-    return out_time
+    return str(time.astimezone("Europe/Oslo").time().isoformat(timespec="minutes"))
 
 
 def get_event_date_str(event: fastf1.events.Event) -> str:
@@ -386,7 +377,7 @@ def update_f2cal_json(json_dict: dict, filename: str) -> None:
                 if not elem:
                     empty_cond = True
                 else:
-                    empty_cond = not bool(elem[-1])  
+                    empty_cond = not bool(elem[-1])
 
                 # if either a new key or existing key with empty timing info:
                 if empty_cond:

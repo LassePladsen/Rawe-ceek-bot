@@ -98,9 +98,9 @@ def is_sprint_week(event: fastf1.events.Event) -> bool:
 
 def sort_sessions_by_day(
     event: fastf1.events.Event,
-) -> dict[str, list[fastf1.core.Session]]:
+) -> dict[str, list[tuple[fastf1.core.Session, "pandas.Timestamp"]]]:
     """Returns a dictionary mapping days to list containing all f1 fastf1.Session objects
-    for the corresponding days"""
+    for the corresponding days in tuples with the session date and time."""
     session_days = defaultdict(list)
 
     i = 1
@@ -113,7 +113,9 @@ def sort_sessions_by_day(
             if "Practice" not in session_name:
                 session_date = event.get_session_date(i)
                 week_day = calendar.day_name[date.weekday(session_date)]
-                session_days[week_day].append(event.get_session(i))
+                session_days[week_day].append(
+                    (event.get_session(i), event.get_session_date(i))
+                )
 
             i += 1
         except ValueError:
@@ -222,7 +224,7 @@ def get_day_sessions(
     event: fastf1.events.Event,
     day: str,
     f2_event: dict[str, list[list[str]]],
-    f1_event: dict[str, list[fastf1.core.Session]],
+    f1_event: dict[str, list[tuple[fastf1.core.Session, "pandas.Timestamp"]]],
     time_sort: bool = True,
     discord_day_format: str = "__",
 ):
@@ -278,7 +280,7 @@ def get_day_sessions(
 
         # Lastly save all f1 sessions mapped by time
         if f1_day:
-            for f1_session in f1_day:
+            for f1_session, local_time in f1_day:
                 # Extract session name
                 name = str(f1_session).split(" - ")[1]
                 if name == "Race":
@@ -287,7 +289,6 @@ def get_day_sessions(
                     title = f"F1 {name}"
 
                 # Extract session time and convert to norwegian time zone
-                local_time = f1_session.date
                 out_time = util.time_reformatter(util.timezone_to_oslo(local_time))
                 hour = int(out_time.split(":")[0])
                 timing_dict[hour] = f"{title}: {out_time}"
@@ -325,7 +326,7 @@ def get_day_sessions(
 
         # Lastly print the f1 sessions that day
         if f1_day:
-            for f1_session in f1_day:
+            for f1_session, local_time in f1_day:
                 # Extract session name
                 name = str(f1_session).split(" - ")[1]
                 if name == "Race":
@@ -334,7 +335,6 @@ def get_day_sessions(
                     title = f"F1 {name}"
 
                 # Extract session time and convert to norwegian time zone
-                local_time = f1_session.date
                 out_time = util.timezone_to_oslo(local_time)
                 output += f"{title}: {out_time}\n"
 
@@ -345,9 +345,10 @@ def get_day_sessions(
 def get_all_days(
     event: fastf1.events.Event,
     f2_days: dict[str, list[list[str]]],
-    f1_days: dict[str, list[fastf1.core.Session]],
+    f1_days: dict[str, list[tuple[fastf1.core.Session, "pandas.Timestamp"]]],
 ):
-    """Returns a string containing all sessions for each day for a given event."""
+    """Returns a string containing all sessions for each day for a given event,
+    and their start times."""
     output = ""
 
     thursday_title = "Torsdag"
