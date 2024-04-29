@@ -1,5 +1,7 @@
 import logging
 import sys
+from threading import Lock
+
 import traceback
 
 from asyncio import sleep, get_event_loop
@@ -43,6 +45,9 @@ except KeyboardInterrupt:
     loop.close()
     sys.exit(1)
 
+
+# Lock to prevent multiple instances of the status task
+lock = Lock()
 
 async def get_race_week_embed(date_: datetime.date) -> discord.Embed:
     """Returns embed for a race week with a 'race week' image."""
@@ -222,45 +227,54 @@ async def status() -> None:
 
     async def status_task():
         """The task to schedule"""
+        # FIRST LOCK THE FUNCTION TO PREVENT MULTIPLE INSTANCES
+        # This will hopefully prevent multiple embeds being posted at the same time
+        lock.acquire()
+
         # Log start of task
         logger.info("Status task starting")
 
         retries = 0
         max_retries = 5
-        while True:
-            try:
-                await update_status_message()
+        try:
+            while True:
+                try:
+                    await update_status_message()
 
-                f2.store_calendar_to_json(
-                    f2.scrape_calendar(logger)
-                )  # update the f2 calendar json
+                    f2.store_calendar_to_json(
+                        f2.scrape_calendar(logger)
+                    )  # update the f2 calendar json
 
-                # Weekly embed
-                await execute_week_embed()
+                    # Weekly embed
+                    await execute_week_embed()
 
-                # Status message
-                await update_status_message()
+                    # Status message
+                    await update_status_message()
 
-                # Log end of the task and print to terminal
-                logmsg = "Status task complete"
-                print(logmsg + f" {datetime.now()} UTC")
-                logger.info(logmsg)
-                break
-
-            # Log exception and add a retry after 10 seconds
-            except Exception as e:
-                if retries < max_retries:
-                    logger.error(
-                        f"An error occured in status_task ({retries=}): {type(e)}: {e}"
-                    )
-
-                else:
-                    logger.error("Max retries reached, see error traceback:")
-                    traceback.print_exc(file=open(LOG_FILENAME, "a"))
+                    # Log end of the task and print to terminal
+                    logmsg = "Status task complete"
+                    print(logmsg + f" {datetime.now()} UTC")
+                    logger.info(logmsg)
                     break
 
-                retries += 1
-                await sleep(10)  # sleep and retry
+                # Log exception and add a retry after 10 seconds
+                except Exception as e:
+                    if retries < max_retries:
+                        logger.error(
+                            f"An error occured in status_task ({retries=}): {type(e)}: {e}"
+                        )
+
+                    else:
+                        logger.error("Max retries reached, see error traceback:")
+                        traceback.print_exc(file=open(LOG_FILENAME, "a"))
+                        break
+
+                    retries += 1
+                    await sleep(10)  # sleep and retry
+
+        # Release the lock after the task is done
+        finally:
+            lock.release()
 
     # Run the task once, then create the schedule loop
     await status_task()
