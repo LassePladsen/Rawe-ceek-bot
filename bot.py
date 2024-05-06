@@ -1,10 +1,9 @@
 import logging
 import sys
-from threading import Lock
 
 import traceback
 
-from asyncio import sleep, get_event_loop
+from asyncio import sleep, get_event_loop, Lock
 from datetime import datetime, timedelta
 from typing import Union
 
@@ -227,16 +226,14 @@ async def status() -> None:
 
     async def status_task():
         """The task to schedule"""
-        # FIRST LOCK THE FUNCTION TO PREVENT MULTIPLE INSTANCES
+        # Lock the critical status task with asyncio.Lock()
         # This will hopefully prevent multiple embeds being posted at the same time
-        lock.acquire()
+        async with lock:
+            # Log start of task
+            logger.info("Status task starting")
 
-        # Log start of task
-        logger.info("Status task starting")
-
-        retries = 0
-        max_retries = 5
-        try:
+            retries = 0
+            max_retries = 5
             while True:
                 try:
                     await update_status_message()
@@ -271,10 +268,6 @@ async def status() -> None:
 
                     retries += 1
                     await sleep(10)  # sleep and retry
-
-        # Release the lock after the task is done
-        finally:
-            lock.release()
 
     # Run the task once, then create the schedule loop
     await status_task()
